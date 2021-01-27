@@ -18,7 +18,7 @@ public class Manifestation {
 	private Date date;
 	private Double priceRegular;
 	private StatusManifestation status;
-	private String location;
+	private Location location;
 	private String image;
 
 	public Manifestation() {
@@ -26,7 +26,7 @@ public class Manifestation {
 	}
 
 	public Manifestation(String name, TypeManifestation typeManifestation, int seatingNumber, Date date, Double priceRegular,
-			StatusManifestation status, String location, String image) {
+			StatusManifestation status, Location location, String image) {
 		super();
 		this.name = name;
 		this.typeManifestation = typeManifestation;
@@ -86,11 +86,11 @@ public class Manifestation {
 		this.status = status;
 	}
 
-	public String getLocation() {
+	public Location getLocation() {
 		return location;
 	}
 
-	public void setLocation(String location) {
+	public void setLocation(Location location) {
 		this.location = location;
 	}
 

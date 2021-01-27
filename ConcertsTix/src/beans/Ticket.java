@@ -16,7 +16,7 @@ public class Ticket {
 	private Manifestation manifestation;
 	private Date date;
 	private Double price;
-	private String buyerNameSurname;
+	private User buyerNameSurname;
 	private StatusTicket statusTicket;
 	private TypeTicket typeTicket;
 
@@ -24,7 +24,7 @@ public class Ticket {
 		super();
 	}
 
-	public Ticket(String id, Manifestation manifestation, Date date, Double price, String buyerNameSurname,
+	public Ticket(String id, Manifestation manifestation, Date date, Double price, User buyerNameSurname,
 			StatusTicket statusTicket, TypeTicket typeTicket) {
 		super();
 		this.id = id;
@@ -68,11 +68,11 @@ public class Ticket {
 		this.price = price;
 	}
 
-	public String getBuyerNameSurname() {
+	public User getBuyerNameSurname() {
 		return buyerNameSurname;
 	}
 
-	public void setBuyerNameSurname(String buyerNameSurname) {
+	public void setBuyerNameSurname(User buyerNameSurname) {
 		this.buyerNameSurname = buyerNameSurname;
 	}
 
