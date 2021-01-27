@@ -1,0 +1,110 @@
+:root {
+  --text-color: #828282;
+  --border-color:#e0e0e0;
+  --primary-color:#2f80ed;
+
+}
+
+* {
+  box-sizing: border-box;
+  font: inherit;
+  color: inherit;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  color: #222;
+  background-image: url("img/wallp4.jpg");
+  background-size: cover;
+}
+
+.background-overlay {
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 10px;
+  align-items: center;
+  height: 100%;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+}
+
+.panel-container1 {
+  grid-column: 1/5;
+  display: flex;
+  justify-content: center;
+}
+
+.panel-container2 {
+  grid-column: 6/12;
+}
+
+.panel {
+  background-color: whitesmoke;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0.25);
+}
+
+.panel__heading {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+.input {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.input label {
+  font-size: 12px;
+  color: var(--text-color);
+  display: block;
+}
+
+.input input {
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+  outline: none;
+  padding: 0;
+  height: 28px;
+}
+
+.dropdown label {
+  font-size:  12px;
+  color: var(--text-color);
+  display: block;
+}
+
+.dropdown select {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  height: 28px;
+  padding: 0;
+}
+
+button {
+  display: block;
+  margin: 0 auto;
+  border: none;
+  padding: 10px 24px;
+  color: white;
+  background-color: var(--primary-color);
+  border-radius: 8px;
+}
