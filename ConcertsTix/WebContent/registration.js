@@ -1,4 +1,19 @@
+function addUserTr(user) {
+	let div = $('<div class="panel-container2"></div>');
+	let tdUsername = $('<label name="username">' + user.username + '</label>');
+	let tdPassword = $('<label name="password">' + user.password + '</label>');
+	let tdName = $('<label name="name">' + user.name + '</label>');
+	let tdSurname = $('<label name="surname">' + user.surname + '</label>');
+	let tdGender = $('<label name="gender">' + user.gender + '</label>');
+	let tdDateOfBirth = $('<label name="dateOfBirth">' + user.dateOfBirth + '</label>');
+	let tdRole = $('<label name="role">' + user.role + '</label>');
+	div.append(tdUsername).append(tdPassword).append(tdName).append(tdSurname).append(tdGender).append(tdDateOfBirth).append(tdRole);
+	div.appendTo('#container');
+}
+
+
 $(document).ready(function() {
+
 	
 	$("input[type=text]")
     	.focus(function() {
@@ -25,8 +40,6 @@ $(document).ready(function() {
 		
 		let success = true;
 		
-		let username = $("input[name=username]").val();
-	    let password = $("input[type=password]").val();
 	    let firstName = $("input[name=firstName]").val();
 	    let lastName = $("input[name=lastName]").val();
 	    let gender = $("select[name=gender]").val();
@@ -35,16 +48,6 @@ $(document).ready(function() {
 		
 		// sklanjanje error poruke posle svakog submita
 		$(".error").remove();
-		
-		if(username.length < 1) {
-    		$("input[name=username]").after('<span class="error" style="color:#828282"> This field is required!</span>');
-    		success = false;
-    	}
-
-		if(password.length < 1) {
-    		$("input[name=password]").after('<span class="error" style="color:#828282"> This field is required!</span>');
-    		success = false;
-    	}
 
 		if(firstName.length < 1) {
     		$("input[name=firstName]").after('<span class="error" style="color:#828282"> This field is required!</span>');
@@ -82,5 +85,61 @@ $(document).ready(function() {
 
 		
 	});
+
+	$("form[name=loginForm]").submit(function() {
+		event.preventDefault();
+		
+		let success = true;
+		
+		let username = $("input[name=loginUsername]").val();
+	    let password = $("input[type=password]").val();
+	    
+		
+		// sklanjanje error poruke posle svakog submita
+		$(".error").remove();
+		
+		if(username.length < 1) {
+    		$("input[name=loginUsername]").after('<span class="error" style="color:#828282"> This field is required!</span>');
+    		success = false;
+    	}
+
+		if(password.length < 1) {
+    		$("input[type=password]").after('<span class="error" style="color:#828282"> This field is required!</span>');
+    		success = false;
+		}
+		
+
+		/*$.get({
+			url: 'rest/users/list',
+			success: function(users) {
+				for (let user of users) {
+					addUserTr(user);
+				}
+			}
+		});*/
+
+		
+		$.post({
+			url: 'rest/users/login',
+			data: JSON.stringify({"username": username, "password": password}),
+			contentType: 'application/json',
+			success: function() {
+				$('#success').text('User logged in!');
+				$("#success").show().delay(3000).fadeOut();
+			},
+			error: function(message) {
+				$('#error').text("User doesn't exist!");
+				$("#error").show().delay(3000).fadeOut();
+			}
+				
+			
+		});
+
+		
+
+		
+	});
+
+
 	
 });
