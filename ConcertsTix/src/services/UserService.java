@@ -1,6 +1,5 @@
 package services;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
@@ -56,19 +55,15 @@ public class UserService {
 	@POST
 	@Path("/login")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces("text/html")
 	public Response login(LoginInformation loginInformation, @Context HttpServletRequest request,
 			@Context HttpServletResponse response) throws URISyntaxException {
 		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
 		User loggedUser = userDao.find(loginInformation.getUsername(), loginInformation.getPassword());
 		if (loggedUser == null) {
-			return Response.status(400).entity("Invalid username and/or password").build();
+			return Response.status(401).entity("Invalid username and/or password").build();
 		}
-		request.getSession().setAttribute("user", loggedUser);
-
-		URI uri = new URI("http://localhost:8080/ConcertsTix/homepage.html");
-		//response.sendRedirect("http://localhost:8080/ConcertsTix/homepage.html");
-		return Response.temporaryRedirect(uri).build();
+		request.getSession().setAttribute("loggedInUser", loggedUser);
+		return Response.status(200).entity("Successfully logged in").build();
 	}
 
 	@POST
@@ -79,30 +74,39 @@ public class UserService {
 		request.getSession().invalidate();
 	}
 
+	@SuppressWarnings("null")
 	@POST
-	@Path("/register")
+	@Path("/registerBuyer")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces("text/html")
 	public Response register(User user, @Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws URISyntaxException {
 		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
 		User newUser = userDao.find(user.getUsername(), user.getPassword());
 		if (newUser != null) {
-			return Response.status(400).entity("Username is not avaliable").build();
+			return Response.status(400).entity("Username is not avaliable, try entering a different username").build();
 		}
+		user.setRole(User.Role.BUYER);
 		userDao.register(user);
-		request.getSession().setAttribute("user", newUser);
-		URI uri = new URI("http://localhost:8080/ConcertsTix/homepage.html");
-		// response.sendRedirect("http://localhost:8080/ConcertsTix/homepage.html");
-		return Response.temporaryRedirect(uri).build();
+		request.getSession().setAttribute("loggedInUser", user);
+		return Response.status(200).entity("Successfully created a new user").build();
 	}
 
 	@GET
-	@Path("/currentUser")
+	@Path("/loggedInUser")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public User login(@Context HttpServletRequest request) {
-		return (User) request.getSession().getAttribute("user");
+	public User loggedInUser(@Context HttpServletRequest request) {
+		return (User) request.getSession().getAttribute("loggedInUser");
 	}
+	
+	@GET
+	@Path("/loggedInUserRole")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public User.Role loggedInUserRole(@Context HttpServletRequest request) {
+		return ((User) request.getSession().getAttribute("loggedInUser")).getRole();
+	}
+	
+	
 
 }

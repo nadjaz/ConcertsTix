@@ -65,17 +65,18 @@ $(document).ready(function() {
         	"name" : $("input[name=firstName]").val(),
         	"surname" : $("input[name=lastName]").val(),
         	"gender" : $("select[name=gender]").val(),
-			"dateOfBirth" : $("input[name=dateOfBirth]").val(),
-			"role" : "BUYER"
+			"dateOfBirth" : $("input[name=dateOfBirth]").val()
+			//"role" : "BUYER"
         };
 
 		$.post({
-			url: 'rest/users/register',
+			url: 'rest/users/registerBuyer',
 			data: JSON.stringify(data),
 			contentType: 'application/json',
 			success: function() {
 				$('#successRegister').text("User with username "  +  $("input[name=username]").val() + " succesfully registered!");
 				$("#successRegister").show().delay(3000).fadeOut();
+				window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
 			},
 			error: function(message) {
 				$('#errorRegister').text("User with the same username already exists!");
@@ -114,6 +115,7 @@ $(document).ready(function() {
 			success: function() {
 				$('#successLogin').text('User logged in!');
 				$("#successLogin").show().delay(3000).fadeOut();
+				window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
 			},
 			error: function(message) {
 				$('#errorLogin').text("User doesn't exist!");
