@@ -24,14 +24,20 @@ public class Ticket {
 		super();
 	}
 
-	public Ticket(String id, Manifestation manifestation, Date date, Double price, User buyerNameSurname,
+	public Ticket(String id, Manifestation manifestation, Double price, User buyerNameSurname,
 			StatusTicket statusTicket, TypeTicket typeTicket) {
 		super();
 		this.id = id;
 		this.manifestation = manifestation;
-		this.date = date;
-		this.price = price;
-		this.buyerNameSurname = buyerNameSurname;
+		this.date = manifestation.getDate();
+		
+		if (typeTicket == TypeTicket.REGULAR) {
+			this.price = manifestation.getPrice();
+		} else {
+			this.price = price;
+		}
+		
+		this.buyerNameSurname = buyerNameSurname;	
 		this.statusTicket = statusTicket;
 		this.typeTicket = typeTicket;
 	}

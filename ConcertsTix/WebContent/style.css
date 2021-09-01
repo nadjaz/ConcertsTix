@@ -21,14 +21,14 @@ body {
 }
 
 .background-overlay {
-  height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
+  height: 100%;
 }
 
 #container {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 0px;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 10px;
@@ -48,7 +48,7 @@ body {
 }
 
 .panel-container2 {
-  grid-column: 6/12;
+  grid-column: 6/11;
 }
 
 .panel {

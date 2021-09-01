@@ -3,9 +3,9 @@ package dao;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -14,6 +14,8 @@ import beans.User;
 import beans.User.Role;
 
 public class UserDAO {
+
+	// kolekcija svih registrovanih inicijalnih korisnika ??????
 	private Map<String, User> users = new HashMap<>();
 
 	public UserDAO() {
@@ -51,6 +53,10 @@ public class UserDAO {
 		return users.values();
 	}
 
+	public void register(User user) {
+		users.put(user.getUsername(), user);
+	}
+
 	/**
 	 * Uèitava korisnike iz WebContent/administrators.txt fajla i dodaje ih u mapu
 	 * {@link #users}. Kljuè je korisnièko ime korisnika.
@@ -75,7 +81,11 @@ public class UserDAO {
 					String name = st.nextToken().trim();
 					String surname = st.nextToken().trim();
 					String gender = st.nextToken().trim();
-					Date dateOfBirth = new SimpleDateFormat("yyyy-MM-dd").parse(st.nextToken().trim());
+					//Date dateOfBirth = new SimpleDateFormat("yyyy-MM-dd").parse(st.nextToken().trim());
+					
+					DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+					LocalDate dateOfBirth = LocalDate.parse(st.nextToken().trim(), pattern);
+					
 					Role role = Role.valueOf(st.nextToken().trim());
 					users.put(username, new User(username, password, name, surname, gender, dateOfBirth, role));
 				}

@@ -1,13 +1,12 @@
 package beans;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public class User {
 
 	public enum Role {
 		ADMINISTRATOR, SELLER, BUYER;
-
 	};
 
 	private String username;
@@ -15,7 +14,7 @@ public class User {
 	private String name;
 	private String surname;
 	private String gender;
-	private Date dateOfBirth;
+	private LocalDate dateOfBirth;
 	private Role role;
 	private List<Ticket> allTickets;
 	private List<Manifestation> allManifestations;
@@ -27,8 +26,7 @@ public class User {
 	}
 
 	// Constructor for CREATE ADMINISTRATOR USER
-	public User(String username, String password, String name, String surname, String gender, Date dateOfBirth,
-			Role role) {
+	public User(String username, String password, String name, String surname, String gender, LocalDate dateOfBirth) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -36,11 +34,11 @@ public class User {
 		this.surname = surname;
 		this.gender = gender;
 		this.dateOfBirth = dateOfBirth;
-		this.role = role;
+		this.role = Role.ADMINISTRATOR;
 	}
 
 	// Constructor for CREATE SELLER USER
-	public User(String username, String password, String name, String surname, String gender, Date dateOfBirth,
+	public User(String username, String password, String name, String surname, String gender, LocalDate dateOfBirth,
 			Role role, List<Manifestation> allManifestations) {
 		super();
 		this.username = username;
@@ -54,8 +52,9 @@ public class User {
 	}
 
 	// Constructor for CREATE BUYER USER
-	public User(String username, String password, String name, String surname, String gender, Date dateOfBirth,
-			Role role, List<Ticket> allTickets, int points, BuyerType buyerType) {
+	public User(String username, String password, String name, String surname, String gender, LocalDate dateOfBirth,
+			Role role) {
+		// List<Ticket> allTickets, int points, BuyerType buyerType) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -64,9 +63,8 @@ public class User {
 		this.gender = gender;
 		this.dateOfBirth = dateOfBirth;
 		this.role = role;
-		this.allTickets = allTickets;
-		this.points = points;
-		this.buyerType = buyerType;
+		// this.allTickets =;
+		this.points = 0;
 	}
 
 	public String getUsername() {
@@ -109,11 +107,11 @@ public class User {
 		this.gender = gender;
 	}
 
-	public Date getDateOfBirth() {
+	public LocalDate getDateOfBirth() {
 		return dateOfBirth;
 	}
 
-	public void setDateOfBirth(Date dateOfBirth) {
+	public void setDateOfBirth(LocalDate dateOfBirth) {
 		this.dateOfBirth = dateOfBirth;
 	}
 

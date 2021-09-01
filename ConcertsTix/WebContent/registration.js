@@ -1,15 +1,4 @@
-function addUserTr(user) {
-	let div = $('<div class="panel-container2"></div>');
-	let tdUsername = $('<label name="username">' + user.username + '</label>');
-	let tdPassword = $('<label name="password">' + user.password + '</label>');
-	let tdName = $('<label name="name">' + user.name + '</label>');
-	let tdSurname = $('<label name="surname">' + user.surname + '</label>');
-	let tdGender = $('<label name="gender">' + user.gender + '</label>');
-	let tdDateOfBirth = $('<label name="dateOfBirth">' + user.dateOfBirth + '</label>');
-	let tdRole = $('<label name="role">' + user.role + '</label>');
-	div.append(tdUsername).append(tdPassword).append(tdName).append(tdSurname).append(tdGender).append(tdDateOfBirth).append(tdRole);
-	div.appendTo('#container');
-}
+
 
 
 $(document).ready(function() {
@@ -42,8 +31,7 @@ $(document).ready(function() {
 		
 	    let firstName = $("input[name=firstName]").val();
 	    let lastName = $("input[name=lastName]").val();
-	    let gender = $("select[name=gender]").val();
-	    let dateOfBirth = $("input[name=dateOfBirth]").val();
+	    
 		let role = $("select[name=role]").val();
 		
 		// sklanjanje error poruke posle svakog submita
@@ -72,16 +60,28 @@ $(document).ready(function() {
 		}
 
 		let data = {
-        	"username" : $("input[name=ime]").val(),
-        	"password" : $("input[name=prezime]").val(),
-        	"name" : $("input[name=korisnickoIme]").val(),
-        	"surname" : $("input[name=lozinka]").val(),
-        	"gender" : $("input[name=email]").val(),
-			"dateOfBirth" : $("input[name=brojTelefona]").val(),
-
+        	"username" : $("input[name=username]").val(),
+        	"password" : $("input[name=password]").val(),
+        	"name" : $("input[name=firstName]").val(),
+        	"surname" : $("input[name=lastName]").val(),
+        	"gender" : $("select[name=gender]").val(),
+			"dateOfBirth" : $("input[name=dateOfBirth]").val(),
+			"role" : "BUYER"
         };
 
-		
+		$.post({
+			url: 'rest/users/register',
+			data: JSON.stringify(data),
+			contentType: 'application/json',
+			success: function() {
+				$('#successRegister').text("User with username "  +  $("input[name=username]").val() + " succesfully registered!");
+				$("#successRegister").show().delay(3000).fadeOut();
+			},
+			error: function(message) {
+				$('#errorRegister').text("User with the same username already exists!");
+				$("#errorRegister").show().delay(3000).fadeOut();
+			}
+		});
 
 		
 	});
@@ -94,7 +94,6 @@ $(document).ready(function() {
 		let username = $("input[name=loginUsername]").val();
 	    let password = $("input[type=password]").val();
 	    
-		
 		// sklanjanje error poruke posle svakog submita
 		$(".error").remove();
 		
@@ -108,31 +107,18 @@ $(document).ready(function() {
     		success = false;
 		}
 		
-
-		/*$.get({
-			url: 'rest/users/list',
-			success: function(users) {
-				for (let user of users) {
-					addUserTr(user);
-				}
-			}
-		});*/
-
-		
 		$.post({
 			url: 'rest/users/login',
 			data: JSON.stringify({"username": username, "password": password}),
 			contentType: 'application/json',
 			success: function() {
-				$('#success').text('User logged in!');
-				$("#success").show().delay(3000).fadeOut();
+				$('#successLogin').text('User logged in!');
+				$("#successLogin").show().delay(3000).fadeOut();
 			},
 			error: function(message) {
-				$('#error').text("User doesn't exist!");
-				$("#error").show().delay(3000).fadeOut();
+				$('#errorLogin').text("User doesn't exist!");
+				$("#errorLogin").show().delay(3000).fadeOut();
 			}
-				
-			
 		});
 
 		
