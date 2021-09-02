@@ -1,6 +1,6 @@
 package beans;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Ticket {
 
@@ -14,7 +14,7 @@ public class Ticket {
 
 	private String id;
 	private Manifestation manifestation;
-	private Date date;
+	private LocalDate date;
 	private Double price;
 	private User buyerNameSurname;
 	private StatusTicket statusTicket;
@@ -30,14 +30,14 @@ public class Ticket {
 		this.id = id;
 		this.manifestation = manifestation;
 		this.date = manifestation.getDate();
-		
+
 		if (typeTicket == TypeTicket.REGULAR) {
 			this.price = manifestation.getPrice();
 		} else {
 			this.price = price;
 		}
-		
-		this.buyerNameSurname = buyerNameSurname;	
+
+		this.buyerNameSurname = buyerNameSurname;
 		this.statusTicket = statusTicket;
 		this.typeTicket = typeTicket;
 	}
@@ -58,11 +58,11 @@ public class Ticket {
 		this.manifestation = manifestation;
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 

@@ -1,6 +1,6 @@
 package beans;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Manifestation {
 
@@ -15,7 +15,7 @@ public class Manifestation {
 	private String name;
 	private TypeManifestation typeManifestation;
 	private int seatingNumber;
-	private Date date;
+	private LocalDate date;
 	private Double priceRegular;
 	private StatusManifestation status;
 	private Location location;
@@ -25,8 +25,8 @@ public class Manifestation {
 		super();
 	}
 
-	public Manifestation(String name, TypeManifestation typeManifestation, int seatingNumber, Date date, Double priceRegular,
-			StatusManifestation status, Location location, String image) {
+	public Manifestation(String name, TypeManifestation typeManifestation, int seatingNumber, LocalDate date,
+			Double priceRegular, StatusManifestation status, Location location, String image) {
 		super();
 		this.name = name;
 		this.typeManifestation = typeManifestation;
@@ -62,11 +62,11 @@ public class Manifestation {
 		this.seatingNumber = seatingNumber;
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 

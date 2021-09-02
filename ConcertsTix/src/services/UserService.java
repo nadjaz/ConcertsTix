@@ -71,10 +71,11 @@ public class UserService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public void logout(@Context HttpServletRequest request) {
+		//String username = ((User) request.getSession().getAttribute("loggedInUser")).getUsername();
 		request.getSession().invalidate();
+		//return username;
 	}
 
-	@SuppressWarnings("null")
 	@POST
 	@Path("/registerBuyer")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -86,9 +87,20 @@ public class UserService {
 			return Response.status(400).entity("Username is not avaliable, try entering a different username").build();
 		}
 		user.setRole(User.Role.BUYER);
-		userDao.register(user);
+		userDao.register(user, ctx.getRealPath(""));
 		request.getSession().setAttribute("loggedInUser", user);
 		return Response.status(200).entity("Successfully created a new user").build();
+	}
+	
+	@POST
+	@Path("/updateBuyer")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateBuyer(User user, @Context HttpServletRequest request, @Context HttpServletResponse response)
+			throws URISyntaxException {
+		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
+		User updatedUser = userDao.update(user);
+		request.getSession().setAttribute("loggedInUser", updatedUser);
+		return Response.status(200).entity("Successfully updated a user").build();
 	}
 
 	@GET
@@ -98,7 +110,7 @@ public class UserService {
 	public User loggedInUser(@Context HttpServletRequest request) {
 		return (User) request.getSession().getAttribute("loggedInUser");
 	}
-	
+
 	@GET
 	@Path("/loggedInUserRole")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -106,7 +118,5 @@ public class UserService {
 	public User.Role loggedInUserRole(@Context HttpServletRequest request) {
 		return ((User) request.getSession().getAttribute("loggedInUser")).getRole();
 	}
-	
-	
 
 }

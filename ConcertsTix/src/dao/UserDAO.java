@@ -2,7 +2,9 @@ package dao;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
@@ -53,8 +55,52 @@ public class UserDAO {
 		return users.values();
 	}
 
-	public void register(User user) {
+	public void register(User user, String contextPath) {
+		writeUser(user, contextPath);
 		users.put(user.getUsername(), user);
+	}
+	
+	public User update(User changedUser) {
+		if (!users.containsKey(changedUser.getUsername())) {
+			return null;
+		} 
+		User user = users.get(changedUser.getUsername());
+		user.setPassword(changedUser.getPassword());
+		user.setName(changedUser.getName());
+		user.setSurname(changedUser.getSurname());
+		user.setGender(changedUser.getGender());
+		user.setDateOfBirth(changedUser.getDateOfBirth());
+		return user;
+	}
+
+	private void writeUser(User user, String contextPath) {
+		String username = user.getUsername();
+		String password = user.getPassword();
+		String name = user.getUsername();
+		String surname = user.getSurname();
+		String gender = user.getGender();
+		LocalDate dateOfBirth = user.getDateOfBirth();
+		Role role = user.getRole();
+
+		PrintWriter out = null;
+		try {
+			File file = new File("C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/buyersAndSellers.txt");
+			out = new PrintWriter(new FileOutputStream(file), true);
+			out.append(username + ";" + password + ";" + name + ";" + surname + ";" + gender + ";" + dateOfBirth + ";"
+					+ role);
+			out.println();
+			//out.flush();
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (Exception e) {
+				}
+			}
+		}
 	}
 
 	/**
@@ -81,11 +127,8 @@ public class UserDAO {
 					String name = st.nextToken().trim();
 					String surname = st.nextToken().trim();
 					String gender = st.nextToken().trim();
-					//Date dateOfBirth = new SimpleDateFormat("yyyy-MM-dd").parse(st.nextToken().trim());
-					
 					DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 					LocalDate dateOfBirth = LocalDate.parse(st.nextToken().trim(), pattern);
-					
 					Role role = Role.valueOf(st.nextToken().trim());
 					users.put(username, new User(username, password, name, surname, gender, dateOfBirth, role));
 				}
