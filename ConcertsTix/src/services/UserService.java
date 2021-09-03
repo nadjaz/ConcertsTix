@@ -99,6 +99,9 @@ public class UserService {
 			throws URISyntaxException {
 		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
 		User updatedUser = userDao.update(user);
+		if (updatedUser == null) {
+			return Response.status(404).entity("User not found!").build();
+		}
 		request.getSession().setAttribute("loggedInUser", updatedUser);
 		return Response.status(200).entity("Successfully updated a user").build();
 	}

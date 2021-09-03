@@ -12,6 +12,7 @@ public class Manifestation {
 		ACTIVE, INACTIVE;
 	};
 
+	private String id;
 	private String name;
 	private TypeManifestation typeManifestation;
 	private int seatingNumber;
@@ -25,9 +26,10 @@ public class Manifestation {
 		super();
 	}
 
-	public Manifestation(String name, TypeManifestation typeManifestation, int seatingNumber, LocalDate date,
+	public Manifestation(String id, String name, TypeManifestation typeManifestation, int seatingNumber, LocalDate date,
 			Double priceRegular, StatusManifestation status, Location location, String image) {
 		super();
+		this.id = id;
 		this.name = name;
 		this.typeManifestation = typeManifestation;
 		this.seatingNumber = seatingNumber;
@@ -100,6 +102,14 @@ public class Manifestation {
 
 	public void setImage(String image) {
 		this.image = image;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 }

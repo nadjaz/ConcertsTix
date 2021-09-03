@@ -1,7 +1,7 @@
 function listAllManifestations(manifestation) {
     	
     let div = $(".panel1");
-    let div1 = $('<div class="input"></div><br>');
+    let div1 = $('<div class="input"></div>');
 	let label1 = $('<label for="name">Name:</label>');
     let labelName = $('<label name="name">' + manifestation.name + '</label><br>');
 	let label2 = $('<label for="typeManifestation">Manifestation type:</label>');
@@ -26,48 +26,24 @@ function listAllManifestations(manifestation) {
 	div.append(div1);
 	div1.append(label1);
 	div1.append(labelName);
-	
-	div.append(div1);
 	div1.append(label2);
 	div1.append(labelTypeManifestation);
-
-	div.append(div1);
 	div1.append(label3);
 	div1.append(labelSeatingNumber);
-
-	div.append(div1);
 	div1.append(label4);
 	div1.append(labelDate);
-
-	div.append(div1);
 	div1.append(label5);
 	div1.append(labelPriceRegular);
-
-	div.append(div1);
 	div1.append(label6);
 	div1.append(labelStatus);
-
-	div.append(div1);
 	div1.append(label7);
-	div1.append(labelLocation);
-
-	div.append(div1);
+	div1.append(labelLocation)
 	div1.append(label8);
-	div1.append(labelImage);
-
-
-
-	/*.append(labelUsername).append(div1)
-	.append(label2).append(labelPassword).append(div1).append(label3).append(labelName)
-	.append(div1).append(label4).append(labelSurname).append(div1)
-	.append(label5).append(labelGender).append(div1).append(label6).append(labelDateOfBirth)
-	.append(div1).append(label7).append(labelRole).append(div1);*/
-	
+	div1.append(labelImage);	
 }
 
 
 $(document).ready(function() {
-
 	
 	$("input[type=text]")
     	.focus(function() {
@@ -89,6 +65,7 @@ $(document).ready(function() {
     		$("#message").remove();
     	});	
 	
+	// ________________________________________REQUEST TO REGISTER A USER
 	$("form[name=registerForm]").submit(function() {
 		event.preventDefault();
 		
@@ -152,6 +129,7 @@ $(document).ready(function() {
 		
 	});
 
+	// __________________________________REQUEST TO LOGIN IN A USER
 	$("form[name=loginForm]").submit(function() {
 		event.preventDefault();
 		
@@ -189,6 +167,7 @@ $(document).ready(function() {
 		});	
 	});
 
+	// _____________________REQUEST TO LIST ALL MANIFESTATIONS
 	$.get({
 		url: 'rest/manifestations/list',
 		success: function(manifestations) {

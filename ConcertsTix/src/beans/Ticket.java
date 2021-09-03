@@ -12,7 +12,7 @@ public class Ticket {
 		RESERVED, CANCELED;
 	};
 
-	private String id;
+	private Integer id;
 	private Manifestation manifestation;
 	private LocalDate date;
 	private Double price;
@@ -24,7 +24,7 @@ public class Ticket {
 		super();
 	}
 
-	public Ticket(String id, Manifestation manifestation, Double price, User buyerNameSurname,
+	public Ticket(Integer id, Manifestation manifestation, User buyerNameSurname,
 			StatusTicket statusTicket, TypeTicket typeTicket) {
 		super();
 		this.id = id;
@@ -33,8 +33,10 @@ public class Ticket {
 
 		if (typeTicket == TypeTicket.REGULAR) {
 			this.price = manifestation.getPrice();
+		} else if (typeTicket == TypeTicket.FAN_PIT) {
+			this.price = manifestation.getPrice() * 2;
 		} else {
-			this.price = price;
+			this.price = manifestation.getPrice() * 4;
 		}
 
 		this.buyerNameSurname = buyerNameSurname;
@@ -42,11 +44,11 @@ public class Ticket {
 		this.typeTicket = typeTicket;
 	}
 
-	public String getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

@@ -6,24 +6,24 @@ import java.io.FileReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.NavigableMap;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import beans.Location;
 import beans.Manifestation;
-import beans.Ticket;
-import beans.User;
 import beans.Manifestation.StatusManifestation;
 import beans.Manifestation.TypeManifestation;
+import beans.Ticket;
 import beans.Ticket.StatusTicket;
 import beans.Ticket.TypeTicket;
+import beans.User;
 import beans.User.Role;
 
 public class TicketDAO {
 
 	// kolekcija svih registrovanih inicijalnih karata
-	private Map<String, Ticket> tickets = new HashMap<>();
+	private NavigableMap<Integer, Ticket> tickets = new TreeMap<>();
 
 	public TicketDAO() {
 
@@ -35,6 +35,19 @@ public class TicketDAO {
 
 	public Collection<Ticket> findAll() {
 		return tickets.values();
+	}
+	
+	public Integer findLastId() {
+		return tickets.lastKey();
+		
+	}
+	
+	public Ticket saveTicket(Ticket ticket) {
+		if (!tickets.containsKey(ticket.getId())) {
+			tickets.put(ticket.getId(), ticket);
+			return ticket;
+		}
+		return null;
 	}
 	
 	public Location createLocation(String locationString) {
@@ -59,6 +72,7 @@ public class TicketDAO {
 		// Game Of Thrones,THEATRE,90,2021-10-17,250,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,got.jpg
 		Manifestation manifestation = null;
 		while (st.hasMoreTokens()) {
+			String id = st.nextToken().trim();
 			String name = st.nextToken().trim();
 			TypeManifestation typeManifestation = TypeManifestation.valueOf(st.nextToken().trim());
 			int seatingNumber = Integer.parseInt(st.nextToken().trim());
@@ -72,7 +86,7 @@ public class TicketDAO {
 
 			String image = "img/" + st.nextToken().trim();
 
-			manifestation = new Manifestation(name, typeManifestation, seatingNumber, date,
+			manifestation = new Manifestation(id, name, typeManifestation, seatingNumber, date,
 					priceRegular, status, location, image);
 		}
 		return manifestation;
@@ -110,12 +124,10 @@ public class TicketDAO {
 					continue;
 				st = new StringTokenizer(line, ";");
 				while (st.hasMoreTokens()) {
-					String id = st.nextToken().trim();
+					Integer id = Integer.parseInt(st.nextToken().trim());
 
 					String manifestationString = st.nextToken().trim();
 					Manifestation manifestation = createManifestation(manifestationString);
-
-					Double price = Double.parseDouble(st.nextToken().trim());
 
 					String userString = st.nextToken().trim();
 					User buyerNameSurname = createUser(userString);
@@ -123,7 +135,7 @@ public class TicketDAO {
 					StatusTicket statusTicket = StatusTicket.valueOf(st.nextToken().trim());
 					TypeTicket typeTicket = TypeTicket.valueOf(st.nextToken().trim());
 
-					tickets.put(id, new Ticket(id, manifestation, price, buyerNameSurname, statusTicket,
+					tickets.put(id, new Ticket(id, manifestation, buyerNameSurname, statusTicket,
 							typeTicket));
 				}
 

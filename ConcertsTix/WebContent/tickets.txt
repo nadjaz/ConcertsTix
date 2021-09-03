@@ -1,5 +1,5 @@
-0001;Game Of Thrones,THEATRE,90,2021-10-17,250,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,got.jpg;300;nadjaz,nadja,Nadja,Zorboski,female,1995-08-17,ADMINISTRATOR;RESERVED;VIP
-0002;Exit,FESTIVAL,10000,2022-07-04,70,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,exit.jpg;600;pera,pera,Pera,Peric,male,1993-05-23,ADMINISTRATOR;CANCELED;REGULAR
-0003;The Beatles,CONCERT,2000,2022-01-20,800,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,thebeatles.jpg;700;nadjaz,nadja,Nadja,Zorboski,female,1995-08-17,ADMINISTRATOR;RESERVED;VIP
-0004;Lollapalooza,FESTIVAL,13000,2022-08-17,200,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,lolapalo.jpg;100;nadjaz,nadja,Nadja,Zorboski,female,1995-08-17,ADMINISTRATOR;RESERVED;VIP
-0005;Rolling Stones 50 Years,CONCERT,1500,2021-12-20,800,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,rollingstones.jpg;3300;nadjaz,nadja,Nadja,Zorboski,female,1995-08-17,ADMINISTRATOR;CANCELED;FAN_PIT
+0001;0001,Game Of Thrones,THEATRE,90,2021-10-17,250,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,got.jpg;nadjaz,nadja,Nadja,Zorboski,female,1995-08-17,ADMINISTRATOR;RESERVED;VIP
+0002;0004,Exit,FESTIVAL,10000,2022-07-04,70,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,exit.jpg;pera,pera,Pera,Peric,male,1993-05-23,ADMINISTRATOR;CANCELED;REGULAR
+0003;0006,The Beatles,CONCERT,2000,2022-01-20,800,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,thebeatles.jpg;nadjaz,nadja,Nadja,Zorboski,female,1995-08-17,ADMINISTRATOR;RESERVED;VIP
+0004;0003,Lollapalooza,FESTIVAL,13000,2022-08-17,200,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,lolapalo.jpg;nadjaz,nadja,Nadja,Zorboski,female,1995-08-17,ADMINISTRATOR;RESERVED;VIP
+0005;0002,Rolling Stones 50 Years,CONCERT,1500,2021-12-20,800,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,rollingstones.jpg;nadjaz,nadja,Nadja,Zorboski,female,1995-08-17,ADMINISTRATOR;CANCELED;FAN_PIT

@@ -38,8 +38,14 @@ body {
 }
 
 .logo-container {
-  display: inline;
+  display: grid;
   justify-content: center;
+}
+
+.logOut-container {
+  display: grid;
+  padding-right: 80px;
+  justify-content: right;
 }
 
 .panel-container1 {
@@ -58,11 +64,12 @@ body {
   grid-row: 8/12;
 }*/
 
-.panel1, .panel2, .panel3 {
+.panel1, .panel2, .panel3, .inputManifestation {
   background-color: whitesmoke;
   padding: 24px;
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0.25);
+  margin-bottom: 20px;
 }
 
 .panel__heading {
@@ -92,6 +99,12 @@ body {
   height: 28px;
 }
 
+.inputManifestation {
+  font-size: 15px;
+  color: var(--text-color);
+  display: grid;
+}
+
 .dropdown label {
   font-size:  12px;
   color: var(--text-color);
@@ -106,7 +119,7 @@ body {
   padding: 0;
 }
 
-button {
+button, input[type=button] {
   display: block;
   margin: 0 auto;
   border: none;
@@ -114,4 +127,7 @@ button {
   color: white;
   background-color: var(--primary-color);
   border-radius: 8px;
+  cursor:pointer;
+  width:auto;
+  height:auto;
 }

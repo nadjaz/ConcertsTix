@@ -36,14 +36,11 @@ public class ManifestationDAO {
 	 * @param password
 	 * @return
 	 */
-	public Manifestation find(String name, String password) {
-		if (!manifestations.containsKey(name)) {
+	public Manifestation find(String id) {
+		if (!manifestations.containsKey(id)) {
 			return null;
 		}
-		Manifestation manifestation = manifestations.get(name);
-		/*if (!user.getPassword().equals(password)) {
-			return null;
-		}*/
+		Manifestation manifestation = manifestations.get(id);
 		return manifestation;
 	}
 	
@@ -87,6 +84,7 @@ public class ManifestationDAO {
 					continue;
 				st = new StringTokenizer(line, ";");
 				while (st.hasMoreTokens()) {
+					String id = st.nextToken().trim();
 					String name = st.nextToken().trim();
 					TypeManifestation typeManifestation = TypeManifestation.valueOf(st.nextToken().trim());
 					int seatingNumber = Integer.parseInt(st.nextToken().trim());
@@ -100,7 +98,7 @@ public class ManifestationDAO {
 
 					String image = "img/" + st.nextToken().trim();
 
-					manifestations.put(name, new Manifestation(name, typeManifestation, seatingNumber, date,
+					manifestations.put(id, new Manifestation(id, name, typeManifestation, seatingNumber, date,
 							priceRegular, status, location, image));
 				}
 
