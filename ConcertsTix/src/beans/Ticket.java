@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public class Ticket {
 
 	public enum TypeTicket {
-		VIP, REGULAR, FAN_PIT;
+		REGULAR, FAN_PIT, VIP;
 	};
 
 	public enum StatusTicket {
@@ -32,11 +32,11 @@ public class Ticket {
 		this.date = manifestation.getDate();
 
 		if (typeTicket == TypeTicket.REGULAR) {
-			this.price = manifestation.getPrice();
+			this.price = manifestation.getPriceRegular();
 		} else if (typeTicket == TypeTicket.FAN_PIT) {
-			this.price = manifestation.getPrice() * 2;
+			this.price = manifestation.getPriceRegular() * 2;
 		} else {
-			this.price = manifestation.getPrice() * 4;
+			this.price = manifestation.getPriceRegular() * 4;
 		}
 
 		this.buyerNameSurname = buyerNameSurname;

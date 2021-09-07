@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NavigableMap;
 import java.util.StringTokenizer;
@@ -36,12 +37,22 @@ public class TicketDAO {
 	public Collection<Ticket> findAll() {
 		return tickets.values();
 	}
-	
+
+	// returns all tickets for the sent user
+	public Collection<Ticket> findForUser(User user) {
+		Collection<Ticket> myTickets = new ArrayList<>();
+		for (Ticket ticket : tickets.values()) {
+			if (ticket.getBuyerNameSurname().equals(user)) {
+				myTickets.add(ticket);
+			}
+		}
+		return myTickets;
+	}
+
 	public Integer findLastId() {
 		return tickets.lastKey();
-		
 	}
-	
+
 	public Ticket saveTicket(Ticket ticket) {
 		if (!tickets.containsKey(ticket.getId())) {
 			tickets.put(ticket.getId(), ticket);
@@ -49,7 +60,7 @@ public class TicketDAO {
 		}
 		return null;
 	}
-	
+
 	public Location createLocation(String locationString) {
 		StringTokenizer st = new StringTokenizer(locationString, ":");
 		// 45:35:Pennsylvania Plaza:4:New York:10001
@@ -69,10 +80,11 @@ public class TicketDAO {
 
 	public Manifestation createManifestation(String manifestationString) {
 		StringTokenizer st = new StringTokenizer(manifestationString, ",");
-		// Game Of Thrones,THEATRE,90,2021-10-17,250,ACTIVE,45:35:Pennsylvania Plaza:4:New York:10001,got.jpg
+		// 0001,Game Of Thrones,THEATRE,90,2021-10-17,250,ACTIVE,45:35:Pennsylvania
+		// Plaza:4:New York:10001,got.jpg
 		Manifestation manifestation = null;
 		while (st.hasMoreTokens()) {
-			String id = st.nextToken().trim();
+			Integer id = Integer.parseInt(st.nextToken().trim());
 			String name = st.nextToken().trim();
 			TypeManifestation typeManifestation = TypeManifestation.valueOf(st.nextToken().trim());
 			int seatingNumber = Integer.parseInt(st.nextToken().trim());
@@ -86,8 +98,8 @@ public class TicketDAO {
 
 			String image = "img/" + st.nextToken().trim();
 
-			manifestation = new Manifestation(id, name, typeManifestation, seatingNumber, date,
-					priceRegular, status, location, image);
+			manifestation = new Manifestation(id, name, typeManifestation, seatingNumber, date, priceRegular, status,
+					location, image);
 		}
 		return manifestation;
 	}
@@ -135,8 +147,7 @@ public class TicketDAO {
 					StatusTicket statusTicket = StatusTicket.valueOf(st.nextToken().trim());
 					TypeTicket typeTicket = TypeTicket.valueOf(st.nextToken().trim());
 
-					tickets.put(id, new Ticket(id, manifestation, buyerNameSurname, statusTicket,
-							typeTicket));
+					tickets.put(id, new Ticket(id, manifestation, buyerNameSurname, statusTicket, typeTicket));
 				}
 
 			}

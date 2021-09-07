@@ -18,7 +18,7 @@ public class User {
 	private Role role;
 	private List<Ticket> allTickets;
 	private List<Manifestation> allManifestations;
-	private int points;
+	private Double points;
 	private BuyerType buyerType;
 
 	public User() {
@@ -64,7 +64,7 @@ public class User {
 		this.dateOfBirth = dateOfBirth;
 		this.role = role;
 		// this.allTickets =;
-		this.points = 0;
+		this.points = 0.0;
 	}
 
 	public String getUsername() {
@@ -131,11 +131,11 @@ public class User {
 		this.allManifestations = allManifestations;
 	}
 
-	public int getPoints() {
+	public Double getPoints() {
 		return points;
 	}
 
-	public void setPoints(int points) {
+	public void setPoints(Double points) {
 		this.points = points;
 	}
 

@@ -1,6 +1,7 @@
 package services;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import beans.LoginInformation;
+import beans.Ticket;
 import beans.User;
 import dao.UserDAO;
 
@@ -79,7 +81,7 @@ public class UserService {
 	@POST
 	@Path("/registerBuyer")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response register(User user, @Context HttpServletRequest request, @Context HttpServletResponse response)
+	public Response registerBuyer(User user, @Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws URISyntaxException {
 		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
 		User newUser = userDao.find(user.getUsername(), user.getPassword());
@@ -87,8 +89,25 @@ public class UserService {
 			return Response.status(400).entity("Username is not avaliable, try entering a different username").build();
 		}
 		user.setRole(User.Role.BUYER);
+		user.setPoints(0.0);
+		user.setAllTickets(new ArrayList<Ticket>());
 		userDao.register(user, ctx.getRealPath(""));
 		request.getSession().setAttribute("loggedInUser", user);
+		return Response.status(200).entity("Successfully created a new user").build();
+	}
+	
+	@POST
+	@Path("/registerSeller")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response registerSeller(User user, @Context HttpServletRequest request, @Context HttpServletResponse response)
+			throws URISyntaxException {
+		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
+		User newUser = userDao.find(user.getUsername(), user.getPassword());
+		if (newUser != null) {
+			return Response.status(400).entity("Username is not avaliable, try entering a different username").build();
+		}
+		user.setRole(User.Role.SELLER);
+		userDao.register(user, ctx.getRealPath(""));
 		return Response.status(200).entity("Successfully created a new user").build();
 	}
 	
@@ -104,6 +123,14 @@ public class UserService {
 		}
 		request.getSession().setAttribute("loggedInUser", updatedUser);
 		return Response.status(200).entity("Successfully updated a user").build();
+	}
+	
+	@GET
+	@Path("/userPoints")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Double userPoints(@Context HttpServletRequest request) {
+		return ((User) request.getSession().getAttribute("loggedInUser")).getPoints();
 	}
 
 	@GET

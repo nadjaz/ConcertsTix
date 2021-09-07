@@ -4,4 +4,4 @@
 0004;Exit;FESTIVAL;10000;2022-07-04;70;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;exit.jpg
 0005;Aladdin;THEATRE;80;2021-09-17;50;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;aladin.jpg
 0006;The Beatles;CONCERT;2000;2022-01-20;800;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;thebeatles.jpg
-0007;Man Of La Mancha;THEATRE;120;2021-03-24;120;INACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;man.jpg
+0007;Man Of La Mancha;THEATRE;120;2021-03-24;120;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;man.jpg

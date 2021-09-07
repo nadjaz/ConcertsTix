@@ -5,10 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.NavigableMap;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import beans.Location;
 import beans.Manifestation;
@@ -18,7 +19,7 @@ import beans.Manifestation.TypeManifestation;
 public class ManifestationDAO {
 
 	// kolekcija svih manifestacija
-	private Map<String, Manifestation> manifestations = new HashMap<>();
+	private NavigableMap<Integer, Manifestation> manifestations = new TreeMap<>();
 
 	public ManifestationDAO() {
 
@@ -27,27 +28,82 @@ public class ManifestationDAO {
 	public ManifestationDAO(String contextPath) {
 		loadManifestations(contextPath);
 	}
-	
+
 	/**
-	 * Vraæa manifestaciju za prosleðene parametre. Vraæa null ako manifestacija
-	 * ne postoji
+	 * Vraæa manifestaciju za prosleðene parametre. Vraæa null ako manifestacija ne
+	 * postoji
 	 * 
 	 * @param username
 	 * @param password
 	 * @return
 	 */
-	public Manifestation find(String id) {
+	public Manifestation find(Integer id) {
 		if (!manifestations.containsKey(id)) {
 			return null;
 		}
 		Manifestation manifestation = manifestations.get(id);
 		return manifestation;
 	}
-	
+
+	public Integer findLastId() {
+		return manifestations.lastKey();
+	}
+
 	public Collection<Manifestation> findAll() {
 		return manifestations.values();
 	}
 
+	// vraca sve aktivne manifestacije
+	public Collection<Manifestation> findAllActive() {
+		Collection<Manifestation> activeManifestations = new ArrayList<>();
+		for (Manifestation manifestation : manifestations.values()) {
+			if (manifestation.getStatus() == StatusManifestation.ACTIVE) {
+				activeManifestations.add(manifestation);
+			}
+		}
+		return activeManifestations;
+	}
+
+	// vraca se INACTIVE manifestacije
+	public Collection<Manifestation> findAllInactive() {
+		Collection<Manifestation> inactiveManifestations = new ArrayList<>();
+		for (Manifestation manifestation : manifestations.values()) {
+			if (manifestation.getStatus() == StatusManifestation.INACTIVE) {
+				inactiveManifestations.add(manifestation);
+			}
+		}
+		return inactiveManifestations;
+	}
+
+	// proverava da li vec postoji manifestacija na odredjeni datum
+	public boolean checkDateAvailability(LocalDate manifestationDate) {
+		for (Manifestation value : manifestations.values()) {
+			if (manifestationDate.equals(value.getDate())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// dodavanje novo kreirane manifestacije u listu manifestacija
+	public Manifestation saveManifestation(Manifestation manifestation) {
+		if (!manifestations.containsKey(manifestation.getId())) {
+			manifestations.put(manifestation.getId(), manifestation);
+			return manifestation;
+		}
+		return null;
+	}
+
+	public boolean activate(Integer id) {
+		Manifestation manifestation = find(id);
+		if (manifestation != null) {
+			manifestation.setStatus(StatusManifestation.ACTIVE);
+			return true;
+		}
+		return false;
+	}
+
+	// helper metoda za loadManifestations()
 	public Location createLocation(String locationString) {
 		StringTokenizer st = new StringTokenizer(locationString, ",");
 		// 45,35,Pennsylvania Plaza,4,New York,10001
@@ -84,7 +140,7 @@ public class ManifestationDAO {
 					continue;
 				st = new StringTokenizer(line, ";");
 				while (st.hasMoreTokens()) {
-					String id = st.nextToken().trim();
+					Integer id = Integer.parseInt(st.nextToken().trim());
 					String name = st.nextToken().trim();
 					TypeManifestation typeManifestation = TypeManifestation.valueOf(st.nextToken().trim());
 					int seatingNumber = Integer.parseInt(st.nextToken().trim());

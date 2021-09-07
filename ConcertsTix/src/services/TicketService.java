@@ -10,6 +10,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -53,22 +54,33 @@ public class TicketService {
 		return dao.findAll();
 	}
 	
-	// rezervacija karte za odredjenu manifestaciju
-	@POST
-	@Path("/reserve")
+	// vraca listu svih karata za poslati username
+	@GET
+	@Path("/list/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response login(Manifestation manifestationToBeReserved, @Context HttpServletRequest request,
+	public Collection<Ticket> getTickets(@PathParam("username") String username, @Context HttpServletRequest request,
+			@Context HttpServletResponse response) {
+		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
+		User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
+		return dao.findForUser(loggedInUser);
+	}
+	
+	// rezervacija karte za odredjenu manifestaciju
+	@POST
+	@Path("/reserve/{type}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response reserve(@PathParam("type") TypeTicket type, Manifestation manifestationToBeReserved, @Context HttpServletRequest request,
 			@Context HttpServletResponse response) {
 		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
 		
 		Integer getLastId = dao.findLastId();
 		User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
+		loggedInUser.setPoints(loggedInUser.getPoints() + (manifestationToBeReserved.getPriceRegular()/1000 * 133));
 		
-		Ticket newTicket = new Ticket(++getLastId, manifestationToBeReserved, loggedInUser, StatusTicket.RESERVED, TypeTicket.REGULAR);
+		Ticket newTicket = new Ticket(++getLastId, manifestationToBeReserved, loggedInUser, StatusTicket.RESERVED, type);
 		
-		Ticket ticketAdded = dao.saveTicket(newTicket);
-		if (ticketAdded != null) {
+		if ( dao.saveTicket(newTicket) != null) {
 			return Response.status(200).entity("Successfully reserveded your ticket").build();
 		}
 		return Response.status(400).entity("Ticket with the same id already created").build();

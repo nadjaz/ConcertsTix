@@ -32,6 +32,24 @@
 			<div class="panel-container1">
 				<div class="panel1">
 					
+					<div class="form-popup" id="myForm">
+						<form action="#" class="form-container" name="formPopUpTicket">
+							<h1>Reserve Ticket</h1>
+						
+							<label for="ticketNumber"><b>Number of tickets:</b></label>
+							<input type="number" placeholder="Enter ticket number" name="ticketNumber" id="ticketNumber" min="1" required><br/><br/>
+						
+							<label for="ticketType"><b>Ticket Type</b></label>
+							<select name="ticketType" placeholder="Select ticket type" id="ticketType" required>
+								<option value="REGULAR">Regular</option>
+								<option value="FAN_PIT">Fan pit</option>
+								<option value="VIP">Vip</option>
+							</select><br/><br/>
+						
+							<button type="submit" class="btn">Submit</button>
+						</form>
+					  </div>
+
 					<div class="input">
 						<label id="errorReserve" hidden="true"></label>
 					</div>
@@ -62,9 +80,37 @@
 				</div><br/><br/>
 
 				<div class="panel3">
-					
+					<div class="input">
+						<label id="errorCreate" hidden="true"></label>
+					</div>
+		
+					<div class="input">
+						<label id="successCreate" hidden="true"></label>
+					</div>
 				</div>
 
+			</div>
+
+			<div class="panel-container3">
+				<div class="panel4">
+					
+
+
+				</div>
+			</div>
+
+			<div class="panel-container4">
+				<div class="panel5">
+					<div class="input">
+						<label id="errorActivate" hidden="true"></label>
+					</div>
+		
+					<div class="input">
+						<label id="successActivate" hidden="true"></label>
+					</div>
+
+
+				</div>
 			</div>
 
 		</div>

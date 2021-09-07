@@ -12,10 +12,10 @@ public class Manifestation {
 		ACTIVE, INACTIVE;
 	};
 
-	private String id;
+	private Integer id;
 	private String name;
 	private TypeManifestation typeManifestation;
-	private int seatingNumber;
+	private Integer seatingNumber;
 	private LocalDate date;
 	private Double priceRegular;
 	private StatusManifestation status;
@@ -26,7 +26,7 @@ public class Manifestation {
 		super();
 	}
 
-	public Manifestation(String id, String name, TypeManifestation typeManifestation, int seatingNumber, LocalDate date,
+	public Manifestation(Integer id, String name, TypeManifestation typeManifestation, Integer seatingNumber, LocalDate date,
 			Double priceRegular, StatusManifestation status, Location location, String image) {
 		super();
 		this.id = id;
@@ -56,12 +56,15 @@ public class Manifestation {
 		this.typeManifestation = typeManifestation;
 	}
 
-	public int getSeatingNumber() {
+	public Integer getSeatingNumber() {
 		return seatingNumber;
 	}
 
-	public void setSeatingNumber(int seatingNumber) {
+	public void setSeatingNumber(Integer seatingNumber) {
 		this.seatingNumber = seatingNumber;
+		if (this.seatingNumber == 0) {
+			this.status = StatusManifestation.INACTIVE;
+		}
 	}
 
 	public LocalDate getDate() {
@@ -72,11 +75,11 @@ public class Manifestation {
 		this.date = date;
 	}
 
-	public Double getPrice() {
+	public Double getPriceRegular() {
 		return priceRegular;
 	}
 
-	public void setPrice(Double price) {
+	public void setPriceRegular(Double price) {
 		this.priceRegular = price;
 	}
 
@@ -104,11 +107,11 @@ public class Manifestation {
 		this.image = image;
 	}
 
-	public String getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

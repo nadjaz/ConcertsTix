@@ -1,7 +1,7 @@
 function listAllManifestations(manifestation) {
     	
     let div = $(".panel1");
-    let div1 = $('<div class="input"></div>');
+    let div1 = $('<div class="inputManifestation"></div>');
 	let label1 = $('<label for="name">Name:</label>');
     let labelName = $('<label name="name">' + manifestation.name + '</label><br>');
 	let label2 = $('<label for="typeManifestation">Manifestation type:</label>');
@@ -71,13 +71,25 @@ $(document).ready(function() {
 		
 		let success = true;
 		
+		let username = $("input[name=username]").val();
+		let password = $("input[name=password]").val();
 	    let firstName = $("input[name=firstName]").val();
 	    let lastName = $("input[name=lastName]").val();
 	    
-		let role = $("select[name=role]").val();
+		//let role = $("select[name=role]").val();
 		
 		// sklanjanje error poruke posle svakog submita
 		$(".error").remove();
+
+		if(username.length < 5) {
+			$("input[name=username]").after('<span class="error" style="color:#828282"> Username must be atleast 5 letters long!</span>');
+			success = false;
+		}
+
+		if(password.length < 5) {
+			$("input[name=password]").after('<span class="error" style="color:#828282"> Password must be atleast 5 letters long!</span>');
+			success = false;
+		}
 
 		if(firstName.length < 1) {
     		$("input[name=firstName]").after('<span class="error" style="color:#828282"> This field is required!</span>');
@@ -111,20 +123,22 @@ $(document).ready(function() {
 			//"role" : "BUYER"
         };
 
-		$.post({
-			url: 'rest/users/registerBuyer',
-			data: JSON.stringify(data),
-			contentType: 'application/json',
-			success: function() {
-				$('#successRegister').text("User with username "  +  $("input[name=username]").val() + " succesfully registered!");
-				$("#successRegister").show().delay(3000).fadeOut();
-				window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
-			},
-			error: function(message) {
-				$('#errorRegister').text("User with the same username already exists!");
-				$("#errorRegister").show().delay(3000).fadeOut();
-			}
-		});
+		if(success) {
+			$.post({
+				url: 'rest/users/registerBuyer',
+				data: JSON.stringify(data),
+				contentType: 'application/json',
+				success: function() {
+					$('#successRegister').text("User with username "  +  $("input[name=username]").val() + " succesfully registered!");
+					$("#successRegister").show().delay(3000).fadeOut();
+					window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
+				},
+				error: function(message) {
+					$('#errorRegister').text("User with the same username already exists!");
+					$("#errorRegister").show().delay(3000).fadeOut();
+				}
+			});
+		}
 
 		
 	});
