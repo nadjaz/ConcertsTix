@@ -25,7 +25,14 @@ public class User {
 		super();
 	}
 
-	// Constructor for CREATE ADMINISTRATOR USER
+	/** Constructor for CREATE ADMINISTRATOR USER
+	 * @param username
+	 * @param password
+	 * @param name
+	 * @param surname
+	 * @param gender
+	 * @param dateOfBirth
+	 */
 	public User(String username, String password, String name, String surname, String gender, LocalDate dateOfBirth) {
 		super();
 		this.username = username;
@@ -37,24 +44,17 @@ public class User {
 		this.role = Role.ADMINISTRATOR;
 	}
 
-	// Constructor for CREATE SELLER USER
-	public User(String username, String password, String name, String surname, String gender, LocalDate dateOfBirth,
-			Role role, List<Manifestation> allManifestations) {
-		super();
-		this.username = username;
-		this.password = password;
-		this.name = name;
-		this.surname = surname;
-		this.gender = gender;
-		this.dateOfBirth = dateOfBirth;
-		this.role = role;
-		this.allManifestations = allManifestations;
-	}
-
-	// Constructor for CREATE BUYER USER
+	/** Constructor for CREATING SELLER OR BUYER USER
+	 * @param username
+	 * @param password
+	 * @param name
+	 * @param surname
+	 * @param gender
+	 * @param dateOfBirth
+	 * @param role
+	 */
 	public User(String username, String password, String name, String surname, String gender, LocalDate dateOfBirth,
 			Role role) {
-		// List<Ticket> allTickets, int points, BuyerType buyerType) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -63,10 +63,8 @@ public class User {
 		this.gender = gender;
 		this.dateOfBirth = dateOfBirth;
 		this.role = role;
-		// this.allTickets =;
-		this.points = 0.0;
 	}
-
+	
 	public String getUsername() {
 		return username;
 	}

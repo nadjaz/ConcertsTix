@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -100,10 +101,27 @@ public class ManifestationService {
 
 	// vraca manifestaciju za zadati id
 	@GET
-	@Path("/findOne/{id}/{num}")
+	@Path("/findOne/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Manifestation reserveManifestation(@PathParam("id") Integer id, @PathParam("num") Integer num) {
+	public Manifestation reserveManifestation(@PathParam("id") Integer id) {
+		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
+		Manifestation manifestation = dao.find(id);
+		if (manifestation != null) {
+			Response.status(200).entity("Found the manifestation").build();
+			return manifestation;
+		}
+		Response.status(404).entity("Manifestation not found").build();
+		return null;
+	}
+	
+	// updejtuje manifestaciju kako bi smanjio broj slobodnih mesta
+	// jer je manifestacija upravo rezervisana
+	@PUT
+	@Path("/reserveOne/{id}/{num}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Manifestation reserveManifestationSeatingNumber(@PathParam("id") Integer id, @PathParam("num") Integer num) {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 		Manifestation manifestation = dao.find(id);
 		if (manifestation != null) {

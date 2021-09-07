@@ -174,8 +174,8 @@ $(document).ready(function() {
 				$("#successLogin").show().delay(3000).fadeOut();
 				window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
 			},
-			error: function(message) {
-				$('#errorLogin').text("User doesn't exist!");
+			error: function(error) {
+				$('#errorLogin').text(error);
 				$("#errorLogin").show().delay(3000).fadeOut();
 			}
 		});	

@@ -1,1 +1,1 @@
-hanaa;hanaa;hanaa;Zdravkovic;female;2021-09-11;BUYER
+milica;milica;milica;Zdravkovic;female;2021-09-11;SELLER

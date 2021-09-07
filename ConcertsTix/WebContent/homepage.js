@@ -237,12 +237,12 @@ function createManifestation() {
 }
 
 // opening popup for entering number of tickets and ticket type you want to reserve
-function openForm() {
-	document.getElementById("myForm").style.display = "block";
+function openForm(formName) {
+	document.getElementById(formName).style.display = "block";
 }
   
-function closeForm() {
-	document.getElementById("myForm").style.display = "none";
+function closeForm(formName) {
+	document.getElementById(formName).style.display = "none";
 }
 
 $(document).ready(function() {
@@ -311,12 +311,11 @@ $(document).ready(function() {
         };
 
 		if(success) {
-			// ovde moramo cekati odgovor, da bi mogli da prikazujemo druge stvari na stranici
-			$.post({
-				url: 'rest/users/updateBuyer',
+			$.ajax({
+				url: 'rest/users/updateUser',
+				type: 'PUT',
 				data: JSON.stringify(data),
 				contentType: 'application/json',
-				//async: false,
 				success: function() {
 					$('#successUpdate').text("User with username "  +  $("input[name=usernameMyProfile]").val() + " succesfully updated!");
 					$("#successUpdate").show().delay(3000).fadeOut();
@@ -367,40 +366,70 @@ $(document).ready(function() {
 
 								let numberOfTickets = null;
 								let ticketType = null;
+								let fullPrice = null;
 								// opening form that requests number of ticket i want to reserve and ticket type
-								openForm();
+								openForm("myForm");
 								// on form submit
 								
-								// unosi broj karata koji zeli da kupi
+								// unosi broj karata koji zeli da kupi i tip karte koju zeli da kupi
 								// kako bi smanjili broj slobodnih mesta za manifestaciju
 								// u trenutku kad bude rezervisao kartu	
-								// i tip karte koji zeli da uzme
 								$("form[name=formPopUpTicket]").submit(function() {
 									event.preventDefault();
 									numberOfTickets = $("#ticketNumber").val();
 	    							ticketType = $("#ticketType").val();
-									closeForm();
+									closeForm("myForm");
+
 									// za kliknutu manifestaciju trazimo objekat manifestacija
 									$.get({
-										url: 'rest/manifestations/findOne/' + manifestationId + '/' + numberOfTickets,
+										url: 'rest/manifestations/findOne/' + manifestationId,
 										success: function(manifestation) {
-											// vracena manifestacija za odredjeni id
-											// request za rezervaciju karte za tu odredjenu manifestaciju
-											$.post({
-												url: 'rest/tickets/reserve/' + ticketType,
-												data: JSON.stringify(manifestation),
-												contentType: 'application/json',
-												success: function() {
-													$('#successReserve').text("Successfully reserved a ticket!");
-													$("#successReserve").show().delay(3000).fadeOut();
-													window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
-												},
-												error: function() {
-													$('#errorReserve').text("Ticket can not be reserved!");
-													$("#errorReserve").show().delay(3000).fadeOut();
-												}
-											});
 
+											// vrednost ukupne cene karte
+											if (ticketType == "FAN_PIT") {
+												fullPrice = numberOfTickets * manifestation.priceRegular * 2;													
+											} else if (ticketType == "VIP") {
+												fullPrice = numberOfTickets * manifestation.priceRegular * 4;
+											} else {
+												fullPrice = numberOfTickets * manifestation.priceRegular;
+											}
+
+											$('input[name=ticketFullPrice]').val(fullPrice);
+
+											// novi popup koji prikazuje konacnu cenu od koje korisnik moze da odustane
+											openForm("myForm2");
+
+											// kada korisnik odobri full cenu karte
+											$("form[name=formPopUpTicket2]").submit(function() {
+												event.preventDefault();
+												
+												// smanjujemo broj slobodnih mesta za odabranu manifestaciju
+												$.ajax({
+													url: 'rest/manifestations/reserveOne/' + manifestationId + '/' + numberOfTickets,
+													type: 'PUT',
+													success: function() {
+														// vracena manifestacija za odredjeni id
+														// request za rezervaciju karte za tu odredjenu manifestaciju
+														// za odredjeni tip karte
+														$.post({
+															url: 'rest/tickets/reserve/' + ticketType,
+															data: JSON.stringify(manifestation),
+															contentType: 'application/json',
+															success: function() {
+																$('#successReserve').text("Successfully reserved a ticket!");
+																$("#successReserve").show().delay(3000).fadeOut();
+																window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
+															},
+															error: function() {
+																$('#errorReserve').text("Ticket can not be reserved!");
+																$("#errorReserve").show().delay(3000).fadeOut();
+															}
+														});
+
+													}
+												})
+													
+											});
 
 										},
 										error: function() {
@@ -408,6 +437,7 @@ $(document).ready(function() {
 											$("#errorReserve").show().delay(3000).fadeOut();
 										}
 									});	
+									
 								});	
 
 								

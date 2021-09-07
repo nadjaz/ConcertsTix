@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -91,7 +92,7 @@ public class UserService {
 		user.setRole(User.Role.BUYER);
 		user.setPoints(0.0);
 		user.setAllTickets(new ArrayList<Ticket>());
-		userDao.register(user, ctx.getRealPath(""));
+		userDao.register(user);
 		request.getSession().setAttribute("loggedInUser", user);
 		return Response.status(200).entity("Successfully created a new user").build();
 	}
@@ -107,14 +108,14 @@ public class UserService {
 			return Response.status(400).entity("Username is not avaliable, try entering a different username").build();
 		}
 		user.setRole(User.Role.SELLER);
-		userDao.register(user, ctx.getRealPath(""));
+		userDao.register(user);
 		return Response.status(200).entity("Successfully created a new user").build();
 	}
 	
-	@POST
-	@Path("/updateBuyer")
+	@PUT
+	@Path("/updateUser")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateBuyer(User user, @Context HttpServletRequest request, @Context HttpServletResponse response)
+	public Response updateUser(User user, @Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws URISyntaxException {
 		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
 		User updatedUser = userDao.update(user);

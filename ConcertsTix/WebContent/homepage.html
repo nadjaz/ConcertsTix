@@ -34,7 +34,7 @@
 					
 					<div class="form-popup" id="myForm">
 						<form action="#" class="form-container" name="formPopUpTicket">
-							<h1>Reserve Ticket</h1>
+							<h1 class="panel__heading">Reserve Ticket</h1><br/>
 						
 							<label for="ticketNumber"><b>Number of tickets:</b></label>
 							<input type="number" placeholder="Enter ticket number" name="ticketNumber" id="ticketNumber" min="1" required><br/><br/>
@@ -46,9 +46,22 @@
 								<option value="VIP">Vip</option>
 							</select><br/><br/>
 						
-							<button type="submit" class="btn">Submit</button>
+							<button type="submit" class="btn">Proceed</button>
 						</form>
-					  </div>
+					</div>
+
+					<div class="form-popup" id="myForm2">
+						<form action="#" class="form-container" name="formPopUpTicket2">
+						  <h1 class="panel__heading">Confirm ticket reservation</h1><br/>
+					  
+						  <label for="ticketFullPrice"><b>Ticket full price</b></label>
+						  <input type="number" name="ticketFullPrice" id="ticketFullPrice" readonly>
+					  
+						  <button type="submit" class="btn">Reserve</button><br/>
+						  <button type="button" class="btn cancel" onclick="closeForm('myForm2')">Cancel</button>
+						</form>
+					</div>
+
 
 					<div class="input">
 						<label id="errorReserve" hidden="true"></label>

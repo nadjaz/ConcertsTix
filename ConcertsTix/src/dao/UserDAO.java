@@ -1,15 +1,17 @@
 package dao;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import beans.User;
@@ -55,25 +57,85 @@ public class UserDAO {
 		return users.values();
 	}
 
-	public void register(User user, String contextPath) {
-		writeUser(user, contextPath);
+	public void register(User user) {
+		writeUserToFile(user);
 		users.put(user.getUsername(), user);
 	}
-	
+
 	public User update(User changedUser) {
 		if (!users.containsKey(changedUser.getUsername())) {
 			return null;
-		} 
+		}
 		User user = users.get(changedUser.getUsername());
+		String lineToChange = user.getUsername() + ";" + user.getPassword() + ";" + user.getName() + ";"
+				+ user.getSurname() + ";" + user.getGender() + ";" + user.getDateOfBirth() + ";" + user.getRole();
+
 		user.setPassword(changedUser.getPassword());
 		user.setName(changedUser.getName());
 		user.setSurname(changedUser.getSurname());
 		user.setGender(changedUser.getGender());
 		user.setDateOfBirth(changedUser.getDateOfBirth());
+		
+		if (user.getRole() == Role.ADMINISTRATOR) {
+			String administratorsFilePath = "C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/administrators.txt"; 
+			updateUserInFile(lineToChange, user, administratorsFilePath);
+		} else {
+			String othersFilePath = "C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/buyersAndSellers.txt";
+			// updating user info in file
+			updateUserInFile(lineToChange, user, othersFilePath);
+		}
 		return user;
 	}
 
-	private void writeUser(User user, String contextPath) {
+	private void updateUserInFile(String lineToChange, User updatedUser, String filePath) {
+
+		// Instantiating the Scanner class to read the file
+		Scanner sc = null;
+		FileWriter writer = null;
+		try {
+			sc = new Scanner(new File(filePath));
+			// instantiating the StringBuffer class
+			StringBuffer buffer = new StringBuffer();
+			// Reading lines of the file and appending them to StringBuffer
+			while (sc.hasNextLine()) {
+				buffer.append(sc.nextLine() + System.lineSeparator());
+			}
+			String fileContents = buffer.toString();
+			// System.out.println("Contents of the file: "+fileContents);
+
+			String newLine = updatedUser.getUsername() + ";" + updatedUser.getPassword() + ";" + updatedUser.getName()
+					+ ";" + updatedUser.getSurname() + ";" + updatedUser.getGender() + ";"
+					+ updatedUser.getDateOfBirth() + ";" + updatedUser.getRole();
+			// Replacing the old line with new line
+			fileContents = fileContents.replaceAll(lineToChange, newLine);
+			// instantiating the FileWriter class
+			writer = new FileWriter(filePath);
+			//System.out.println("");
+			//System.out.println("new data: " + fileContents);
+			writer.append(fileContents);
+			//writer.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (Exception e) {
+				}
+			}
+			// closing the Scanner object
+			if (sc != null) {
+				try {
+					sc.close();
+				} catch (Exception e) {
+				}
+			}
+		}
+
+	}
+
+	private void writeUserToFile(User user) {
 		String username = user.getUsername();
 		String password = user.getPassword();
 		String name = user.getUsername();
@@ -82,21 +144,21 @@ public class UserDAO {
 		LocalDate dateOfBirth = user.getDateOfBirth();
 		Role role = user.getRole();
 
-		PrintWriter out = null;
+		BufferedWriter writer = null;
 		try {
-			File file = new File("C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/buyersAndSellers.txt");
-			out = new PrintWriter(new FileOutputStream(file), true);
-			out.append(username + ";" + password + ";" + name + ";" + surname + ";" + gender + ";" + dateOfBirth + ";"
+			writer = new BufferedWriter(new FileWriter(
+					"C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/buyersAndSellers.txt", true));
+			writer.write(username + ";" + password + ";" + name + ";" + surname + ";" + gender + ";" + dateOfBirth + ";"
 					+ role);
-			out.println();
-			//out.flush();
+			writer.newLine();
+			// out.flush();
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {
-			if (out != null) {
+			if (writer != null) {
 				try {
-					out.close();
+					writer.close();
 				} catch (Exception e) {
 				}
 			}
@@ -130,7 +192,8 @@ public class UserDAO {
 					DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 					LocalDate dateOfBirth = LocalDate.parse(st.nextToken().trim(), pattern);
 					Role role = Role.valueOf(st.nextToken().trim());
-					users.put(username, new User(username, password, name, surname, gender, dateOfBirth, role));
+					// pravimo administatore
+					users.put(username, new User(username, password, name, surname, gender, dateOfBirth));
 				}
 
 			}
