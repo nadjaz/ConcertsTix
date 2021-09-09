@@ -33,8 +33,7 @@ public class ManifestationDAO {
 	 * Vraæa manifestaciju za prosleðene parametre. Vraæa null ako manifestacija ne
 	 * postoji
 	 * 
-	 * @param username
-	 * @param password
+	 * @param id
 	 * @return
 	 */
 	public Manifestation find(Integer id) {
@@ -47,6 +46,15 @@ public class ManifestationDAO {
 
 	public Integer findLastId() {
 		return manifestations.lastKey();
+	}
+
+	public Manifestation findLastManifestation() {
+		Integer lastId = findLastId();
+		Manifestation foundManifestation = manifestations.get(lastId);
+		if (foundManifestation != null) {
+			return foundManifestation;
+		}
+		return null;
 	}
 
 	public Collection<Manifestation> findAll() {
@@ -73,6 +81,30 @@ public class ManifestationDAO {
 			}
 		}
 		return inactiveManifestations;
+	}
+
+	// updejtuje postojecu manifestaciju
+	public Manifestation update(Integer id, Manifestation changedManifestation) {
+		if (!manifestations.containsKey(id)) {
+			return null;
+		}
+		Manifestation manifestation = manifestations.get(id);
+		// String lineToChange = user.getUsername() + ";" + user.getPassword() + ";" +
+		// user.getName() + ";"
+		// + user.getSurname() + ";" + user.getGender() + ";" + user.getDateOfBirth() +
+		// ";" + user.getRole();
+
+		manifestation.setName(changedManifestation.getName());
+		manifestation.setTypeManifestation(changedManifestation.getTypeManifestation());
+		manifestation.setSeatingNumber(changedManifestation.getSeatingNumber());
+		manifestation.setPriceRegular(changedManifestation.getPriceRegular());
+
+		// String manifestationsFilePath =
+		// "C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/manifestations.txt";
+		// updateManifestationInFile(lineToChange, manifestation,
+		// manifestationsFilePath);
+
+		return manifestation;
 	}
 
 	// proverava da li vec postoji manifestacija na odredjeni datum

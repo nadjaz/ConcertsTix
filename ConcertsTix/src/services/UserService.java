@@ -19,8 +19,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import beans.LoginInformation;
+import beans.Manifestation;
 import beans.Ticket;
 import beans.User;
+import dao.ManifestationDAO;
 import dao.UserDAO;
 
 @Path("/users")
@@ -71,12 +73,11 @@ public class UserService {
 
 	@POST
 	@Path("/logout")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
 	public void logout(@Context HttpServletRequest request) {
-		//String username = ((User) request.getSession().getAttribute("loggedInUser")).getUsername();
+		// String username = ((User)
+		// request.getSession().getAttribute("loggedInUser")).getUsername();
 		request.getSession().invalidate();
-		//return username;
+		// return username;
 	}
 
 	@POST
@@ -96,22 +97,24 @@ public class UserService {
 		request.getSession().setAttribute("loggedInUser", user);
 		return Response.status(200).entity("Successfully created a new user").build();
 	}
-	
+
 	@POST
 	@Path("/registerSeller")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response registerSeller(User user, @Context HttpServletRequest request, @Context HttpServletResponse response)
-			throws URISyntaxException {
+	public Response registerSeller(User user, @Context HttpServletRequest request,
+			@Context HttpServletResponse response) throws URISyntaxException {
 		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
 		User newUser = userDao.find(user.getUsername(), user.getPassword());
 		if (newUser != null) {
 			return Response.status(400).entity("Username is not avaliable, try entering a different username").build();
 		}
 		user.setRole(User.Role.SELLER);
+		user.setAllManifestations(new ArrayList<Manifestation>());
 		userDao.register(user);
+
 		return Response.status(200).entity("Successfully created a new user").build();
 	}
-	
+
 	@PUT
 	@Path("/updateUser")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -125,7 +128,57 @@ public class UserService {
 		request.getSession().setAttribute("loggedInUser", updatedUser);
 		return Response.status(200).entity("Successfully updated a user").build();
 	}
-	
+
+	@POST
+	@Path("/addTicket")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addTicket(Ticket ticket, @Context HttpServletRequest request) {
+		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
+		
+		// error occurs
+		// Recursive reference has been found in class
+		// TicketDAO ticketDao = (TicketDAO) ctx.getAttribute("ticketDAO");
+		// Ticket foundTicket = ticketDao.find(ticket.getId());
+		
+		User user = (User) request.getSession().getAttribute("loggedInUser");
+		userDao.addTicket(user, ticket);
+		return Response.status(200).entity("Successfully added ticket to users ticket list").build();
+	}
+
+	@GET
+	@Path("/listTickets")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<Ticket> listTickets(@Context HttpServletRequest request) {
+		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
+		User user = (User) request.getSession().getAttribute("loggedInUser");
+		return userDao.findTickets(user);
+	}
+
+	@POST
+	@Path("/addManifestation")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addManifestation(Manifestation manifestation, @Context HttpServletRequest request) {
+		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
+		
+		ManifestationDAO manifestationDao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
+		Manifestation foundManifestation = manifestationDao.find(manifestation.getId());
+		
+		User user = (User) request.getSession().getAttribute("loggedInUser");
+		userDao.addManifestation(user, foundManifestation);
+		return Response.status(200).entity("Successfully added manifestation to users manifestation list").build();
+	}
+
+	@GET
+	@Path("/listManifestations")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<Manifestation> listManifestations(@Context HttpServletRequest request) {
+		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
+		User user = (User) request.getSession().getAttribute("loggedInUser");
+		return userDao.findManifestations(user);
+	}
+
 	@GET
 	@Path("/userPoints")
 	@Consumes(MediaType.APPLICATION_JSON)

@@ -77,8 +77,7 @@ public class ManifestationService {
 	@POST
 	@Path("/create")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createManifestation(Manifestation manifestation, @Context HttpServletRequest request, @Context HttpServletResponse response)
-			throws URISyntaxException {
+	public Response createManifestation(Manifestation manifestation, @Context HttpServletRequest request, @Context HttpServletResponse response) {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 	
 		if (!dao.checkDateAvailability(manifestation.getDate())) {
@@ -92,11 +91,24 @@ public class ManifestationService {
 		manifestation.setLocation(location);
 		
 		//User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
-		
-		if (dao.saveManifestation(manifestation) != null) {
+		Manifestation newManifestation = dao.saveManifestation(manifestation);
+		if (newManifestation != null) {
 			return Response.status(200).entity("Successfully created a manifestation").build();
 		}
 		return Response.status(400).entity("Manifestation with the same id already created").build();
+	}
+	
+	@PUT
+	@Path("/update/{id}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateManifestation(@PathParam("id") Integer id, Manifestation manifestation, @Context HttpServletRequest request, @Context HttpServletResponse response)
+			throws URISyntaxException {
+		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
+		Manifestation updatedManifestation = dao.update(id, manifestation);
+		if (updatedManifestation == null) {
+			return Response.status(404).entity("Manifestation not found!").build();
+		}
+		return Response.status(200).entity("Successfully updated the manifestation").build();
 	}
 
 	// vraca manifestaciju za zadati id
@@ -115,24 +127,36 @@ public class ManifestationService {
 		return null;
 	}
 	
+	// vraca poslednju napravljenu manifestaciju
+	@GET
+	@Path("/lastOne")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Manifestation lastManifestationCreated(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
+		Manifestation manifestation = dao.findLastManifestation();
+		if (manifestation != null) {
+			Response.status(200).entity("Found the manifestation").build();
+			return manifestation;
+		}
+		Response.status(404).entity("Manifestation not found").build();
+		return null;
+	}
+	
 	// updejtuje manifestaciju kako bi smanjio broj slobodnih mesta
 	// jer je manifestacija upravo rezervisana
 	@PUT
 	@Path("/reserveOne/{id}/{num}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Manifestation reserveManifestationSeatingNumber(@PathParam("id") Integer id, @PathParam("num") Integer num) {
+	public Response reserveManifestationSeatingNumber(@PathParam("id") Integer id, @PathParam("num") Integer num) {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 		Manifestation manifestation = dao.find(id);
 		if (manifestation != null) {
 			// setovanje novog broja slobodnih mesta nakon rezervacije karte
 			// trenutni broj umanjen za broj kupljenih karata
 			manifestation.setSeatingNumber(manifestation.getSeatingNumber() - num);
-			Response.status(200).entity("Found the manifestation").build();
-			return manifestation;
+			return Response.status(200).entity("Found the manifestation").build();
 		}
-		Response.status(404).entity("Manifestation not found").build();
-		return null;
+		return Response.status(404).entity("Manifestation not found").build();
 	}
 	
 	// aktivira manifestaciju

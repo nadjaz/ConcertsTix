@@ -64,7 +64,7 @@ function listAllManifestations(manifestation, manifestationId, panelName, button
 	labelImage.width(100);
 	labelImage.height(100);
 
-	let buttonManifestation = $('<input type="button" form="form'+ manifestationId +'" id="' + manifestationId + '" value=' + buttonValue + '>')
+	let buttonManifestation = $('<input type="button" form="form'+ manifestationId +'" id="' + manifestationId + '" value=' + buttonValue + '>');
 	
 	div.append(forma);
 	forma.append(div1);
@@ -88,7 +88,8 @@ function listAllManifestations(manifestation, manifestationId, panelName, button
 }
 
 // _____________________ADDING INFO TO ALL TICKETS PANEL
-function listAllTickets(ticket, panelName) {
+// inputbuttontoappend for the usage of BUYER when he wants to cancel his ticket reservation
+function listAllTickets(ticket, panelName, inputButtonToAppend, ticketId) {
     	
     let div = $(panelName);
     let div1 = $('<div class="input"></div>');
@@ -97,7 +98,10 @@ function listAllTickets(ticket, panelName) {
 	let label2 = $('<label for="manifestation">Manifestation:</label>');
 	let labelManifestation = $('<label name="manifestation">' + ticket.manifestation.name + '</label><br>');
 	let label3 = $('<label for="date">Date:</label>');
-	let labelDate = $('<label name="date">' + ticket.date + '</label><br>');
+
+	let labelDate = $('<input type="date" name="date" id="date' + ticketId + '" readonly><br>').val(ticket.date);
+
+	//let labelDate = $('<label name="date">' + ticket.date + '</label><br>');
 	let label4 = $('<label for="price">Price:</label>');
 	let labelPrice = $('<label name="price">' + ticket.price + '</label><br>');
 	let label5 = $('<label for="buyerNameSurname">Buyers username:</label>');
@@ -121,7 +125,8 @@ function listAllTickets(ticket, panelName) {
 	div1.append(label6);
 	div1.append(labelTicketStatus);
 	div1.append(label7);
-	div1.append(labelTicketType);	
+	div1.append(labelTicketType);
+	div1.append(inputButtonToAppend);	
 }
 
 // _____________________ADDING INFO TO USER PROFILE INFORMATION PANEL
@@ -206,17 +211,17 @@ function createManifestation() {
 	let form = $('<form action=# method="post" id="createManifestation" name="createManifestation">');
     let div1 = $('<div class="input"></div>');
 	let label1 = $('<label for="nameManifestationCreate">Manifestaion name:</label>');
-    let labelNameManifestation = $('<input type="text" name="nameManifestationCreate" id="nameManifestationCreate"/>');
+    let labelNameManifestation = $('<input type="text" name="nameManifestationCreate" id="nameManifestationCreate" required/>');
 	let label2 = $('<label for="typeManifestationCreate">Manifestation type:</label>');
 	let inputtypeManifestation = $('<select name="typeManifestationCreate" id="typeManifestationCreate"><option value="CONCERT">Concert</option><option value="FESTIVAL">Festival</option><option value="THEATRE">Theatre</option></select>');
 	let label3 = $('<label for="seatingNumberCreate">Seating number:</label>');
-	let inputseatingNumber = $('<input type="number" name="seatingNumberCreate" id="seatingNumberCreate"/>');
+	let inputseatingNumber = $('<input type="number" name="seatingNumberCreate" id="seatingNumberCreate" required/>');
 	let label4 = $('<label for="dateManifestationCreate">Manifestaiton date:</label>');
 	let inputDateManifestation = $('<input type="date" name="dateManifestationCreate" id="dateManifestationCreate" value="2021-09-11"/>');
 	let label5 = $('<label for="priceRegularCreate">Regular price:</label>');
-	let inputPriceRegular = $('<input type="number" id="priceRegularCreate" name="priceRegularCreate"/>');
+	let inputPriceRegular = $('<input type="number" id="priceRegularCreate" name="priceRegularCreate" required/>');
 	let label6 = $('<label for="imageManifestationCreate">Manifestation image:</label>');
-	let inputImageManifestation = $('<input type="file" id="imageManifestationCreate" name="imageManifestationCreate">');
+	let inputImageManifestation = $('<input type="file" id="imageManifestationCreate" name="imageManifestationCreate" required>');
 	let buttonCreateManifestation = $('<button type="submit">Create</button>')
 
 	div.append(form);
@@ -236,29 +241,70 @@ function createManifestation() {
 	form.append(buttonCreateManifestation);
 }
 
+// form for updating manifestations by seller
+function updateManifestation(manifestation, manifestationId, panelName, buttonValue) {
+	let div = $(panelName);
+
+	let forma = $('<form action=# method="post" id="form' +  manifestationId + '">');
+
+    let div1 = $('<div class="inputManifestation"></div>');
+	let label1 = $('<label for="nameManifestationUpdate">Name:</label>');
+    let labelName = $('<input type="text" name="nameManifestationUpdate" id="nameManifestationUpdate" required>').val(manifestation.name);
+	let label2 = $('<label for="typeManifestationUpdate">Manifestation type:</label>');
+	let labelTypeManifestation = $('<select name="typeManifestationUpdate" id="typeManifestationUpdate"><option value="CONCERT">Concert</option><option value="FESTIVAL">Festival</option><option value="THEATRE">Theatre</option></select>').val(manifestation.typeManifestation);
+	let label3 = $('<label for="seatingNumberUpdate">Seating number:</label>');
+	let labelSeatingNumber = $('<input type="number" name="seatingNumberUpdate" id="seatingNumberUpdate" required>').val(manifestation.seatingNumber);
+	let label4 = $('<label for="dateUpdate">Date:</label>');
+	let labelDate =  $('<label name="dateUpdate">' + manifestation.date + '</label><br>');
+	let label5 = $('<label for="priceRegularUpdate">Regular price:</label>');
+	let labelPriceRegular = $('<input type="number" name="priceRegularUpdate" id="priceRegularUpdate" required>').val(manifestation.priceRegular);
+	let label6 = $('<label for="statusUpdate">Status:</label>');
+	let labelStatus = $('<label name="statusUpdate">' + manifestation.status + '</label><br>');
+
+	let label7 = $('<label for="location">Location:</label>');
+	let labelLocation = $('<label name="location">' + manifestation.location.city + '</label><br>');
+
+	let label8 =  $('<label for="image">Image:</label>');
+	let labelImage =$('<img id="image" src="' + manifestation.image + '"/>'); 
+	labelImage.width(100);
+	labelImage.height(100);
+
+	let buttonManifestation = $('<input type="button" form="form'+ manifestationId +'" id="' + manifestationId + '" value=' + buttonValue + '>')
+	
+	div.append(forma);
+	forma.append(div1);
+	div1.append(label1);
+	div1.append(labelName);
+	div1.append(label2);
+	div1.append(labelTypeManifestation);
+	div1.append(label3);
+	div1.append(labelSeatingNumber);
+	div1.append(label4);
+	div1.append(labelDate);
+	div1.append(label5);
+	div1.append(labelPriceRegular);
+	div1.append(label6);
+	div1.append(labelStatus);
+	div1.append(label7);
+	div1.append(labelLocation);
+	div1.append(label8);
+	div1.append(labelImage);
+	div1.append(buttonManifestation);
+}
+
 // opening popup for entering number of tickets and ticket type you want to reserve
 function openForm(formName) {
 	document.getElementById(formName).style.display = "block";
 }
   
+// closing popup
 function closeForm(formName) {
 	document.getElementById(formName).style.display = "none";
 }
 
+var loggedUser;
+
 $(document).ready(function() {
-
-	var loggedUser = null;
-
-	// __________________SHOWING PROFILE INFORMATION DETAILS
-	// show my profile details
-	$.get({
-		url: 'rest/users/loggedInUser',
-		success: function(currentUser) {
-			loggedUser = currentUser;
-			// add my profile information to MyProfile panel
-			loggedInUserProfile(currentUser);
-		}
-	});
 
 	// ___________________UPDATING USER PROFILE INFORMATION REQUEST
 	// update profile information form
@@ -325,319 +371,473 @@ $(document).ready(function() {
 		}
 	});
 
-	// _______________REQUEST FOR HOMEPAGE ELEMENTS SHOWING FOR EACH ROLE OF USER
-	// show specific homepage view for each user
+
+	// __________________SHOWING PROFILE INFORMATION DETAILS
+	// show my profile details
 	$.get({
-		url: 'rest/users/loggedInUserRole',
-		success: function(currentUserRole) {
-			// ________________________________________________________BUYER ROLE_________________________________________________________
-			if (currentUserRole == "BUYER") {
-				// _____________________________________REQUEST TO LIST ALL TICKETS
-				$.get({
-					url: 'rest/tickets/list/' + loggedUser.username,
-					success: function(tickets) {
-						$(".panel4").append($('<h1 class="panel__heading">My tickets</h1><br/>'));
-						for (let ticket of tickets) {
-							listAllTickets(ticket, ".panel4");
-						}
-					}
-				});
+		url: 'rest/users/loggedInUser',
+		success: function(currentUser) {
+			loggedUser = currentUser;
+			// add my profile information to MyProfile panel
+			loggedInUserProfile(currentUser);
 
-				// _____________________REQUEST TO LIST ALL ACTIVE MANIFESTATIONS
-				$.get({
-					url: 'rest/manifestations/listActive',
-					//async: false,
-					success: function(manifestations) {
-						$(".panel1").append($('<h1 class="panel__heading">All active manifestations</h1><br/>'));
-						for (let manifestation of manifestations) {
-							listAllManifestations(manifestation, manifestation.id, ".panel1", "Reserve");
-						}
-						
-
-
-						// ________________ WHEN A BUYER WANTS TO RESERVE A TICKET FOR A SPECIFIC MANIFESTATION
-						$(function(){
-							$('input[type="button"]').click(function(){
-								let manifestationId = this.id;
-
-								// setting the max value of tickets you can reserve for that event
-								manifestationSeatingNumber = $("#seatingNumber" + manifestationId).val();
-								$("#ticketNumber").attr({"max" : manifestationSeatingNumber, "min" : 1});
-
-								let numberOfTickets = null;
-								let ticketType = null;
-								let fullPrice = null;
-								// opening form that requests number of ticket i want to reserve and ticket type
-								openForm("myForm");
-								// on form submit
-								
-								// unosi broj karata koji zeli da kupi i tip karte koju zeli da kupi
-								// kako bi smanjili broj slobodnih mesta za manifestaciju
-								// u trenutku kad bude rezervisao kartu	
-								$("form[name=formPopUpTicket]").submit(function() {
-									event.preventDefault();
-									numberOfTickets = $("#ticketNumber").val();
-	    							ticketType = $("#ticketType").val();
-									closeForm("myForm");
-
-									// za kliknutu manifestaciju trazimo objekat manifestacija
-									$.get({
-										url: 'rest/manifestations/findOne/' + manifestationId,
-										success: function(manifestation) {
-
-											// vrednost ukupne cene karte
-											if (ticketType == "FAN_PIT") {
-												fullPrice = numberOfTickets * manifestation.priceRegular * 2;													
-											} else if (ticketType == "VIP") {
-												fullPrice = numberOfTickets * manifestation.priceRegular * 4;
-											} else {
-												fullPrice = numberOfTickets * manifestation.priceRegular;
-											}
-
-											$('input[name=ticketFullPrice]').val(fullPrice);
-
-											// novi popup koji prikazuje konacnu cenu od koje korisnik moze da odustane
-											openForm("myForm2");
-
-											// kada korisnik odobri full cenu karte
-											$("form[name=formPopUpTicket2]").submit(function() {
-												event.preventDefault();
-												
-												// smanjujemo broj slobodnih mesta za odabranu manifestaciju
-												$.ajax({
-													url: 'rest/manifestations/reserveOne/' + manifestationId + '/' + numberOfTickets,
-													type: 'PUT',
-													success: function() {
-														// vracena manifestacija za odredjeni id
-														// request za rezervaciju karte za tu odredjenu manifestaciju
-														// za odredjeni tip karte
-														$.post({
-															url: 'rest/tickets/reserve/' + ticketType,
-															data: JSON.stringify(manifestation),
-															contentType: 'application/json',
-															success: function() {
-																$('#successReserve').text("Successfully reserved a ticket!");
-																$("#successReserve").show().delay(3000).fadeOut();
-																window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
-															},
-															error: function() {
-																$('#errorReserve').text("Ticket can not be reserved!");
-																$("#errorReserve").show().delay(3000).fadeOut();
-															}
-														});
-
-													}
-												})
-													
-											});
-
-										},
-										error: function() {
-											$('#errorReserve').text("Manifestation you want to reserve is deleted, not found!");
-											$("#errorReserve").show().delay(3000).fadeOut();
-										}
-									});	
-									
-								});	
-
-								
-							});
-						});
-					}
-				});
-
-				// get buyers points score
-				// _____________________________________REQUEST TO GET USER POINTS SCORE
-				$.get({
-					url: 'rest/users/userPoints',
-					success: function(points) {
-						$(".panel3").append($('<h1 class="panel__heading">My points</h1><br/>'));
-						let div = $(".panel3");
-						let div1 = $('<div class="input"></div>');
-						let label1 = $('<label for="userPoints">User points:</label>');
-						let labelPoints = $('<label name="userPoints" id="userPoints">' + points + '</label><br>');
-						div.append(div1);
-						div1.append(label1);
-						div1.append(labelPoints);	
-					}
-				});
-				//alert("User logged in has a role type BUYER!");
-			}
-			// _______________________________________________________________________SELLER ROLE_________________________________________________________
-			else if (currentUserRole == "SELLER") {
-				$(".panel3").append($('<h1 class="panel__heading">Create manifestation</h1><br/>'));
-				createManifestation();
-
-				// CREATING MANIFESTATION SUBMIT FORM
-				$("form[name=createManifestation]").submit(function() {
-					event.preventDefault();
-						
-					let data = {
-						"name" : $("input[name=nameManifestationCreate]").val(),
-						"typeManifestation" : $("select[name=typeManifestationCreate]").val(),
-						"seatingNumber" : $("input[name=seatingNumberCreate]").val(),
-						"date" : $("input[name=dateManifestationCreate]").val(),
-						"priceRegular" : $("input[name=priceRegularCreate]").val(),
-						"image" : $("input[name=imageManifestationCreate]").val()
-					};
-			
-					$.post({
-						url: 'rest/manifestations/create',
-						data: JSON.stringify(data),
-						contentType: 'application/json',
-						success: function() {
-							$('#successCreate').text("Manifestation with name "  +  $("input[name=nameManifestation]").val() + " succesfully created!");
-							$("#successCreate").show().delay(3000).fadeOut();
-							window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
-						},
-						error: function(message) {
-							$('#errorCreate').text("Date already occupied, you need to entry a different manifestation date!");
-							$("#errorCreate").show().delay(3000).fadeOut();
-						}
-					});
-			
-					
-				});
-
-				//alert("User logged in has a role type SELLER!");
-			}
-			// ____________________________________________________________ADMINISTRATOR ROLE_____________________________________________________________
-			else {
-				//___________________________________REQUEST TO LIST ALL USERS
-				$.get({
-					url: 'rest/users/list',
-					success: function(users) {
-						$(".panel1").append($('<h1 class="panel__heading">All users</h1><br/>'));
-						for (let user of users) {
-							listAllUsers(user);
-						}
-					}
-				});
-
-				//___________________________REQUEST TO LIST ALL INACTIVE MANIFESTATIONS
-				$.get({
-					url: 'rest/manifestations/listInactive',
-					success: function(manifestations) {
-						$(".panel5").append($('<h1 class="panel__heading">All inactive manifestations</h1><br/>'));
-
-						for (let manifestation of manifestations) {
-							listAllManifestations(manifestation, manifestation.id, ".panel5", "Activate");
-						}
-
-						$('input[type="button"]').click(function(){
-							let manifestationId = this.id;
-							// za kliknutu manifestaciju trazimo objekat manifestacija
-							$.get({
-								url: 'rest/manifestations/activateOne/' + manifestationId,
-								success: function() {
-									$('#successActivate').text("Successfully activated the manifestation!");
-									$("#successActivate").show().delay(3000).fadeOut();
-									window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
-								},
-								error: function() {
-									$('#errorActivate').text("Cannot active manifestation!");
-									$("#errorActivate").show().delay(3000).fadeOut();
+			// _______________REQUEST FOR HOMEPAGE ELEMENTS SHOWING FOR EACH ROLE OF USER
+			// show specific homepage view for each user
+			$.get({
+				url: 'rest/users/loggedInUserRole',
+				success: function(currentUserRole) {
+					// ________________________________________________________BUYER ROLE_________________________________________________________
+					if (currentUserRole == "BUYER") {
+						// _____________________________________REQUEST TO LIST ALL TICKETS
+						// prvi nacin preko korisinika registrovanog na samoj karti
+						$.get({
+							url: 'rest/tickets/list/' + loggedUser.username,
+							success: function(tickets) {
+								$(".panel4").append($('<h1 class="panel__heading">My tickets</h1><br/>'));
+								for (let ticket of tickets) {
+									let inputToAppend = $('<button id="cancelTicketButton" value="' + ticket.id + '">Cancel</button>');
+									listAllTickets(ticket, ".panel4", inputToAppend, ticket.id);
 								}
-							});
 
-						});
-					}
-				});
-				
-				// _____________________________________REQUEST TO LIST ALL TICKETS
-				$.get({
-					url: 'rest/tickets/list',
-					success: function(tickets) {
-						$(".panel4").append($('<h1 class="panel__heading">All tickets</h1><br/>'));
-						for (let ticket of tickets) {
-							listAllTickets(ticket, ".panel4");
-						}
-					}
-				});
+								$("#cancelTicketButton").click(function() {
 
+									let ticketId =$(this).attr("value");
+									let manifestationDate = $('#date' + ticketId).val();
 
-				$(".panel3").append($('<h1 class="panel__heading">Create seller</h1><br/>'));
-				createSeller();
+									// nalazimo danasnji datum
+									// da vidimo da li je uopste moguc odustanak od date karte
+									// odustanak je moguc najkasnije sedam dana pre manifestacija
+								
+									var today = new Date();
+									var todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 
-				// CREATING SELLER SUBMIT FORM
-				$("form[name=createSeller]").submit(function() {
-					event.preventDefault();
-					
-					let success = true;
-					
+									var start = moment(manifestationDate);
+									var end = moment(todaysDate);
+									let diffDays = start.diff(end, "days")
 
-					let username = $("input[name=usernameSeller]").val();
-					let password = $("input[name=passwordSeller]").val();
-					let firstName = $("input[name=firstNameSeller]").val();
-					let lastName = $("input[name=lastNameSeller]").val();
-					
-					// sklanjanje error poruke posle svakog submita
-					$(".error").remove();
-
-					if(username.length < 5) {
-						$("input[name=usernameSeller]").after('<span class="error" style="color:#828282"> Username must be atleast 5 letters long!</span>');
-						success = false;
-					}
-
-					if(password.length < 5) {
-						$("input[name=passwordSeller]").after('<span class="error" style="color:#828282"> Password must be atleast 5 letters long!</span>');
-						success = false;
-					}
-			
-					if(firstName.length < 1) {
-						$("input[name=firstNameSeller]").after('<span class="error" style="color:#828282"> This field is required!</span>');
-						success = false;
-					} else {
-						let nameReg = new RegExp('[A-Z][a-z]+');
-						if (!nameReg.test(firstName)) {
-							$("input[name=firstNameSeller]").after('<span class="error" style="color:#828282"> Enter valid name!</span>');
-							success = false;
-						}
-					}
-					
-					if(lastName.length < 1) {
-						$("input[name=lastNameSeller]").after('<span class="error" style="color:#828282"> This field is required!</span>');
-						success = false;
-					} else {
-						let nameReg = new RegExp('[A-Z][a-z]+');
-						if (!nameReg.test(lastName)) {
-							$("input[name=lastNameSeller]").after('<span class="error" style="color:#828282"> Enter valid lastname!</span>');
-							success = false;
-						}
-					}
-			
-					let data = {
-						"username" : $("input[name=usernameSeller]").val(),
-						"password" : $("input[name=passwordSeller]").val(),
-						"name" : $("input[name=firstNameSeller]").val(),
-						"surname" : $("input[name=lastNameSeller]").val(),
-						"gender" : $("select[name=genderSeller]").val(),
-						"dateOfBirth" : $("input[name=dateOfBirthSeller]").val()
-						//"role" : "SELLER"
-					};
-			
-					if (success) {
-						$.post({
-							url: 'rest/users/registerSeller',
-							data: JSON.stringify(data),
-							contentType: 'application/json',
-							success: function() {
-								$('#successRegister').text("User with username "  +  $("input[name=usernameSeller]").val() + " succesfully registered!");
-								$("#successRegister").show().delay(3000).fadeOut();
-								window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
-							},
-							error: function(message) {
-								$('#errorRegister').text("User with the same username already exists!");
-								$("#errorRegister").show().delay(3000).fadeOut();
+									if (diffDays >= 7) {
+										$.ajax({
+											url: 'rest/tickets/cancel/' + ticketId,
+											type: 'PUT',
+											success: function() {
+												$('#successCancel').text("Successfully canceled your ticket!");
+												$("#successCancel").show().delay(3000).fadeOut();
+												window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
+											}
+										});
+									} else {
+										$('#errorCancel').text("Cannot cancel your ticket because the manifestation is less than 7 days away from today!");
+										$("#errorCancel").show().delay(3000).fadeOut();
+									}
+								});
 							}
 						});
+						// _____________________________________REQUEST TO LIST ALL TICKETS
+						// drugi nacin preko liste karata koju ima sam korisnik
+						/*$.get({
+							url: 'rest/users/listTickets',
+							success: function(tickets) {
+								$(".panel4").append($('<h1 class="panel__heading">My tickets</h1><br/>'));
+								for (let ticket of tickets) {
+									listAllTickets(ticket, ".panel4");
+								}
+							}
+						});*/
+
+						// _____________________REQUEST TO LIST ALL ACTIVE MANIFESTATIONS
+						$.get({
+							url: 'rest/manifestations/listActive',
+							//async: false,
+							success: function(manifestations) {
+								$(".panel1").append($('<h1 class="panel__heading">All active manifestations</h1><br/>'));
+								for (let manifestation of manifestations) {
+									listAllManifestations(manifestation, manifestation.id, ".panel1", "Reserve");
+								}
+								
+
+
+								// ________________ WHEN A BUYER WANTS TO RESERVE A TICKET FOR A SPECIFIC MANIFESTATION
+								$(function(){
+									$('input[type="button"]').click(function(){
+										let manifestationId = this.id;
+
+										// setting the max value of tickets you can reserve for that event
+										manifestationSeatingNumber = $("#seatingNumber" + manifestationId).val();
+										$("#ticketNumber").attr({"max" : manifestationSeatingNumber, "min" : 1});
+
+										let numberOfTickets = null;
+										let ticketType = null;
+										let fullPrice = null;
+										// opening form that requests number of ticket i want to reserve and ticket type
+										openForm("myForm");
+										// on form submit
+										
+										// unosi broj karata koji zeli da kupi i tip karte koju zeli da kupi
+										// kako bi smanjili broj slobodnih mesta za manifestaciju
+										// u trenutku kad bude rezervisao kartu	
+										$("form[name=formPopUpTicket]").submit(function() {
+											event.preventDefault();
+											numberOfTickets = $("#ticketNumber").val();
+											ticketType = $("#ticketType").val();
+											closeForm("myForm");
+
+											// za kliknutu manifestaciju trazimo objekat manifestacija
+											$.get({
+												url: 'rest/manifestations/findOne/' + manifestationId,
+												success: function(manifestation) {
+
+													// vrednost ukupne cene karte
+													if (ticketType == "FAN_PIT") {
+														fullPrice = numberOfTickets * manifestation.priceRegular * 2;													
+													} else if (ticketType == "VIP") {
+														fullPrice = numberOfTickets * manifestation.priceRegular * 4;
+													} else {
+														fullPrice = numberOfTickets * manifestation.priceRegular;
+													}
+
+													$('input[name=ticketFullPrice]').val(fullPrice);
+
+													// novi popup koji prikazuje konacnu cenu od koje korisnik moze da odustane ili potvrdi
+													openForm("myForm2");
+
+													// kada korisnik odobri full cenu karte
+													$("form[name=formPopUpTicket2]").submit(function() {
+														event.preventDefault();
+														
+														// smanjujemo broj slobodnih mesta za odabranu manifestaciju
+														$.ajax({
+															url: 'rest/manifestations/reserveOne/' + manifestationId + '/' + numberOfTickets,
+															type: 'PUT',
+															success: function() {
+
+																// request za rezervaciju karte za tu odredjenu manifestaciju
+																// za odredjeni tip karte
+																$.post({
+																	url: 'rest/tickets/reserve/' + ticketType + '/' + numberOfTickets,
+																	data: JSON.stringify(manifestation),
+																	contentType: 'application/json',
+																	success: function() {
+																		
+																		$('#successReserve').text("Successfully reserved a ticket!");
+																		$("#successReserve").show().delay(3000).fadeOut();
+
+																		// __________________REQUEST TO GET THE LAST TICKET CREATED
+																		$.get({
+																			url: 'rest/tickets/lastOne',
+																			success: function(ticket) {
+																				
+																				// dodajemo rezervisani ticket u listu svih ticketa useru koji je rezervisao
+																				$.post({
+																					url: 'rest/users/addTicket',
+																					data: JSON.stringify(ticket),
+																					contentType: 'application/json',
+																					success: function() {
+																						// dodajemo rezervisani ticket u listu svih ticketa useru koji je rezervisao
+																						$('#successReserve').text("Successfully added ticket to users ticket list!");
+																						$("#successReserve").show().delay(3000).fadeOut();
+																						//closeForm2("myForm2");
+																						window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
+																					}
+																					
+																				});
+
+																				
+																			}
+																		});
+																	},
+																	error: function() {
+																		$('#errorReserve').text("Ticket can not be reserved!");
+																		$("#errorReserve").show().delay(3000).fadeOut();
+																	}
+																});
+
+															}
+														});
+															
+													});
+
+												},
+												error: function() {
+													$('#errorReserve').text("Manifestation you want to reserve is deleted, not found!");
+													$("#errorReserve").show().delay(3000).fadeOut();
+												}
+											});	
+											
+										});	
+
+										
+									});
+								});
+							}
+						});
+
+						// get buyers points score
+						// _____________________________________REQUEST TO GET USER POINTS SCORE
+						$.get({
+							url: 'rest/users/userPoints',
+							success: function(points) {
+								$(".panel3").append($('<h1 class="panel__heading">My points</h1><br/>'));
+								let div = $(".panel3");
+								let div1 = $('<div class="input"></div>');
+								let label1 = $('<label for="userPoints">User points:</label>');
+								let labelPoints = $('<label name="userPoints" id="userPoints">' + points + '</label><br>');
+								div.append(div1);
+								div1.append(label1);
+								div1.append(labelPoints);	
+							}
+						});
+						//alert("User logged in has a role type BUYER!");
 					}
-			
+					// _______________________________________________________________________SELLER ROLE_________________________________________________________
+					else if (currentUserRole == "SELLER") {
+						$(".panel3").append($('<h1 class="panel__heading">Create manifestation</h1><br/>'));
+						createManifestation();
+
+						// _____________________________________REQUEST TO LIST ALL MANIFESTATIONS BY SELLER that he can update/change
+						$.get({
+							url: 'rest/users/listManifestations',
+							success: function(manifestations) {
+								$(".panel1").append($('<h1 class="panel__heading">My manifestations</h1><br/>'));
+								for (let manifestation of manifestations) {
+									updateManifestation(manifestation, manifestation.id, ".panel1", "Change");
+								}
+
+								// UPDATE MANIFESTATION BY SELLER
+								$('input[type="button"]').click(function(){
+									let manifestationId = this.id;
+				
+									let data = {
+										"name" : $("input[name=nameManifestationUpdate]").val(),
+										"typeManifestation" : $("select[name=typeManifestationUpdate]").val(),
+										"seatingNumber" : $("input[name=seatingNumberUpdate]").val(),
+										"priceRegular" : $("input[name=priceRegularUpdate]").val()
+									};
+
+									$.ajax({
+										url: 'rest/manifestations/update/' + manifestationId,
+										type: 'PUT',
+										data: JSON.stringify(data),
+										contentType: 'application/json',
+										success: function() {
+											$('#successReserve').text("Manifestation succesfully updated!");
+											$("#successReserve").show().delay(3000).fadeOut();
+											window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
+										}
+									});	
+								});
+							}
+						});
+
+						// _____________________________________REQUEST TO LIST ALL RESERVED TICKETS
+						$.get({
+							url: 'rest/tickets/listReserved',
+							success: function(tickets) {
+								$(".panel4").append($('<h1 class="panel__heading">All reserved tickets</h1><br/>'));
+								for (let ticket of tickets) {
+									listAllTickets(ticket, ".panel4");
+								}
+							}
+						});
+
+						// CREATING MANIFESTATION SUBMIT FORM
+						$("form[name=createManifestation]").submit(function() {
+							event.preventDefault();
+								
+							let data = {
+								"name" : $("input[name=nameManifestationCreate]").val(),
+								"typeManifestation" : $("select[name=typeManifestationCreate]").val(),
+								"seatingNumber" : $("input[name=seatingNumberCreate]").val(),
+								"date" : $("input[name=dateManifestationCreate]").val(),
+								"priceRegular" : $("input[name=priceRegularCreate]").val(),
+								"image" : $("input[name=imageManifestationCreate]").val()
+							};
 					
-				});
-			}
+							$.post({
+								url: 'rest/manifestations/create',
+								data: JSON.stringify(data),
+								contentType: 'application/json',
+								success: function() {
+
+									$('#successCreate').text("Manifestation with name "  +  $("input[name=nameManifestationCreate]").val() + " succesfully created!");
+									$("#successCreate").show().delay(3000).fadeOut();
+
+									// __________________REQUEST TO GET THE LAST MANIFESTATION CREATED
+									$.get({
+										url: 'rest/manifestations/lastOne',
+										success: function(manifestation) {
+
+											// dodajemo napravljenu manifestaciju u listu manifestacija SELLERa
+											$.post({
+												url: 'rest/users/addManifestation',
+												data: JSON.stringify(manifestation),
+												contentType: 'application/json',
+												success: function() {
+													// dodajemo rezervisani ticket u listu svih ticketa useru koji je rezervisao
+													$('#successCreate').text("Successfully added manifestation to users manifestation list!");
+													$("#successCreate").show().delay(3000).fadeOut();
+													window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
+												}	
+											});
+										}
+									});	
+								},
+								error: function() {
+									$('#errorCreate').text("Date already occupied, you need to entry a different manifestation date!");
+									$("#errorCreate").show().delay(3000).fadeOut();
+								}
+							});	
+						});
+
+						//alert("User logged in has a role type SELLER!");
+					}
+					// ____________________________________________________________ADMINISTRATOR ROLE_____________________________________________________________
+					else {
+						//___________________________________REQUEST TO LIST ALL USERS
+						$.get({
+							url: 'rest/users/list',
+							success: function(users) {
+								$(".panel1").append($('<h1 class="panel__heading">All users</h1><br/>'));
+								for (let user of users) {
+									listAllUsers(user);
+								}
+							}
+						});
+
+						//___________________________REQUEST TO LIST ALL INACTIVE MANIFESTATIONS
+						$.get({
+							url: 'rest/manifestations/listInactive',
+							success: function(manifestations) {
+								$(".panel5").append($('<h1 class="panel__heading">All inactive manifestations</h1><br/>'));
+
+								for (let manifestation of manifestations) {
+									listAllManifestations(manifestation, manifestation.id, ".panel5", "Activate");
+								}
+
+								$('input[type="button"]').click(function(){
+									let manifestationId = this.id;
+									// za kliknutu manifestaciju trazimo objekat manifestacija
+									$.get({
+										url: 'rest/manifestations/activateOne/' + manifestationId,
+										success: function() {
+											$('#successActivate').text("Successfully activated the manifestation!");
+											$("#successActivate").show().delay(3000).fadeOut();
+											window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
+										},
+										error: function() {
+											$('#errorActivate').text("Cannot active manifestation!");
+											$("#errorActivate").show().delay(3000).fadeOut();
+										}
+									});
+
+								});
+							}
+						});
+						
+						// _____________________________________REQUEST TO LIST ALL TICKETS WITH ALL STATUSES (CANCELED AND RESERVED)
+						$.get({
+							url: 'rest/tickets/list',
+							success: function(tickets) {
+								$(".panel4").append($('<h1 class="panel__heading">All tickets</h1><br/>'));
+								for (let ticket of tickets) {
+									listAllTickets(ticket, ".panel4");
+								}
+							}
+						});
+
+
+						$(".panel3").append($('<h1 class="panel__heading">Create seller</h1><br/>'));
+						createSeller();
+
+						// _________________________________________________CREATING SELLER SUBMIT FORM
+						$("form[name=createSeller]").submit(function() {
+							event.preventDefault();
+							
+							let success = true;
+							
+
+							let username = $("input[name=usernameSeller]").val();
+							let password = $("input[name=passwordSeller]").val();
+							let firstName = $("input[name=firstNameSeller]").val();
+							let lastName = $("input[name=lastNameSeller]").val();
+							
+							// sklanjanje error poruke posle svakog submita
+							$(".error").remove();
+
+							if(username.length < 5) {
+								$("input[name=usernameSeller]").after('<span class="error" style="color:#828282"> Username must be atleast 5 letters long!</span>');
+								success = false;
+							}
+
+							if(password.length < 5) {
+								$("input[name=passwordSeller]").after('<span class="error" style="color:#828282"> Password must be atleast 5 letters long!</span>');
+								success = false;
+							}
+					
+							if(firstName.length < 1) {
+								$("input[name=firstNameSeller]").after('<span class="error" style="color:#828282"> This field is required!</span>');
+								success = false;
+							} else {
+								let nameReg = new RegExp('[A-Z][a-z]+');
+								if (!nameReg.test(firstName)) {
+									$("input[name=firstNameSeller]").after('<span class="error" style="color:#828282"> Enter valid name!</span>');
+									success = false;
+								}
+							}
+							
+							if(lastName.length < 1) {
+								$("input[name=lastNameSeller]").after('<span class="error" style="color:#828282"> This field is required!</span>');
+								success = false;
+							} else {
+								let nameReg = new RegExp('[A-Z][a-z]+');
+								if (!nameReg.test(lastName)) {
+									$("input[name=lastNameSeller]").after('<span class="error" style="color:#828282"> Enter valid lastname!</span>');
+									success = false;
+								}
+							}
+					
+							let data = {
+								"username" : $("input[name=usernameSeller]").val(),
+								"password" : $("input[name=passwordSeller]").val(),
+								"name" : $("input[name=firstNameSeller]").val(),
+								"surname" : $("input[name=lastNameSeller]").val(),
+								"gender" : $("select[name=genderSeller]").val(),
+								"dateOfBirth" : $("input[name=dateOfBirthSeller]").val()
+								//"role" : "SELLER"
+							};
+					
+							if (success) {
+								$.post({
+									url: 'rest/users/registerSeller',
+									data: JSON.stringify(data),
+									contentType: 'application/json',
+									success: function() {
+										$('#successRegister').text("User with username "  +  $("input[name=usernameSeller]").val() + " succesfully registered!");
+										$("#successRegister").show().delay(3000).fadeOut();
+										window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
+									},
+									error: function(message) {
+										$('#errorRegister').text("User with the same username already exists!");
+										$("#errorRegister").show().delay(3000).fadeOut();
+									}
+								});
+							}
+					
+							
+						});
+					}
+				}
+			});
+
+
+
+
+
+
+
 		}
 	});
+
+	
 
 	// _____________________LOGOUT REQUEST
 	// needs to be fixed!!!

@@ -19,29 +19,31 @@ public class Ticket {
 	private User buyerNameSurname;
 	private StatusTicket statusTicket;
 	private TypeTicket typeTicket;
+	private Integer numberOfTickets;
 
 	public Ticket() {
 		super();
 	}
 
-	public Ticket(Integer id, Manifestation manifestation, User buyerNameSurname,
-			StatusTicket statusTicket, TypeTicket typeTicket) {
+	public Ticket(Integer id, Manifestation manifestation, User buyerNameSurname, StatusTicket statusTicket,
+			TypeTicket typeTicket, Integer numberOfTickets) {
 		super();
 		this.id = id;
 		this.manifestation = manifestation;
 		this.date = manifestation.getDate();
 
 		if (typeTicket == TypeTicket.REGULAR) {
-			this.price = manifestation.getPriceRegular();
+			this.price = manifestation.getPriceRegular() * numberOfTickets;
 		} else if (typeTicket == TypeTicket.FAN_PIT) {
-			this.price = manifestation.getPriceRegular() * 2;
+			this.price = manifestation.getPriceRegular() * 2 * numberOfTickets;
 		} else {
-			this.price = manifestation.getPriceRegular() * 4;
+			this.price = manifestation.getPriceRegular() * 4 * numberOfTickets;
 		}
 
 		this.buyerNameSurname = buyerNameSurname;
 		this.statusTicket = statusTicket;
 		this.typeTicket = typeTicket;
+		this.numberOfTickets = numberOfTickets;
 	}
 
 	public Integer getId() {
@@ -98,6 +100,14 @@ public class Ticket {
 
 	public void setTypeTicket(TypeTicket typeTicket) {
 		this.typeTicket = typeTicket;
+	}
+
+	public Integer getNumberOfTickets() {
+		return numberOfTickets;
+	}
+
+	public void setNumberOfTickets(Integer numberOfTickets) {
+		this.numberOfTickets = numberOfTickets;
 	}
 
 }

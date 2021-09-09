@@ -8,12 +8,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+import beans.Manifestation;
+import beans.Ticket;
 import beans.User;
 import beans.User.Role;
 
@@ -57,6 +61,24 @@ public class UserDAO {
 		return users.values();
 	}
 
+	public void addTicket(User user, Ticket ticket) {
+		List<Ticket> tickets = user.getAllTickets();
+		tickets.add(ticket);
+	}
+	
+	public Collection<Ticket> findTickets(User user) {
+		return user.getAllTickets();
+	}
+
+	public void addManifestation(User user, Manifestation manifestation) {
+		List<Manifestation> manifestations = user.getAllManifestations();
+		manifestations.add(manifestation);
+	}
+	
+	public Collection<Manifestation> findManifestations(User user) {
+		return user.getAllManifestations();
+	}
+
 	public void register(User user) {
 		writeUserToFile(user);
 		users.put(user.getUsername(), user);
@@ -75,9 +97,9 @@ public class UserDAO {
 		user.setSurname(changedUser.getSurname());
 		user.setGender(changedUser.getGender());
 		user.setDateOfBirth(changedUser.getDateOfBirth());
-		
+
 		if (user.getRole() == Role.ADMINISTRATOR) {
-			String administratorsFilePath = "C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/administrators.txt"; 
+			String administratorsFilePath = "C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/administrators.txt";
 			updateUserInFile(lineToChange, user, administratorsFilePath);
 		} else {
 			String othersFilePath = "C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/buyersAndSellers.txt";
@@ -110,10 +132,10 @@ public class UserDAO {
 			fileContents = fileContents.replaceAll(lineToChange, newLine);
 			// instantiating the FileWriter class
 			writer = new FileWriter(filePath);
-			//System.out.println("");
-			//System.out.println("new data: " + fileContents);
+			// System.out.println("");
+			// System.out.println("new data: " + fileContents);
 			writer.append(fileContents);
-			//writer.flush();
+			// writer.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -208,4 +230,5 @@ public class UserDAO {
 			}
 		}
 	}
+
 }

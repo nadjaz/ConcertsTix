@@ -37,12 +37,38 @@ public class TicketDAO {
 	public Collection<Ticket> findAll() {
 		return tickets.values();
 	}
+	
+	/**
+	 * Vraæa ticket za prosleðene parametre. Vraæa null ako ticket ne
+	 * postoji
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Ticket find(Integer id) {
+		if (!tickets.containsKey(id)) {
+			return null;
+		}
+		Ticket ticket = tickets.get(id);
+		return ticket;
+	}
+	
+	// find all reserved tickets
+	public Collection<Ticket> findAllReserved() {
+		Collection<Ticket> reservedTickets = new ArrayList<Ticket>();
+		for (Ticket ticket : tickets.values()) {
+			if (ticket.getStatusTicket().equals(StatusTicket.RESERVED))  {
+				reservedTickets.add(ticket);
+			}
+		}
+		return reservedTickets;
+	}
 
 	// returns all tickets for the sent user
 	public Collection<Ticket> findForUser(User user) {
 		Collection<Ticket> myTickets = new ArrayList<>();
 		for (Ticket ticket : tickets.values()) {
-			if (ticket.getBuyerNameSurname().equals(user)) {
+			if (ticket.getBuyerNameSurname().equals(user) && ticket.getStatusTicket().equals(StatusTicket.RESERVED)) {
 				myTickets.add(ticket);
 			}
 		}
@@ -52,6 +78,15 @@ public class TicketDAO {
 	public Integer findLastId() {
 		return tickets.lastKey();
 	}
+	
+	public Ticket findLastTicket() {
+		Integer lastId = findLastId();
+		Ticket foundTicket = tickets.get(lastId);
+		if (foundTicket != null) {
+			return foundTicket;
+		}
+		return null;
+	}
 
 	public Ticket saveTicket(Ticket ticket) {
 		if (!tickets.containsKey(ticket.getId())) {
@@ -59,6 +94,17 @@ public class TicketDAO {
 			return ticket;
 		}
 		return null;
+	}
+	
+	// cancel ticket, change ticket status
+	public Ticket cancelTicket(Integer id) {
+		Ticket ticket = find(id);
+		if (!ticket.equals(null)) {
+			ticket.setStatusTicket(StatusTicket.CANCELED);
+			return ticket;
+		}
+		return null;
+		
 	}
 
 	public Location createLocation(String locationString) {
@@ -147,7 +193,7 @@ public class TicketDAO {
 					StatusTicket statusTicket = StatusTicket.valueOf(st.nextToken().trim());
 					TypeTicket typeTicket = TypeTicket.valueOf(st.nextToken().trim());
 
-					tickets.put(id, new Ticket(id, manifestation, buyerNameSurname, statusTicket, typeTicket));
+					tickets.put(id, new Ticket(id, manifestation, buyerNameSurname, statusTicket, typeTicket, 1));
 				}
 
 			}
