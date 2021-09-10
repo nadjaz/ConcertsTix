@@ -72,7 +72,7 @@ body {
   grid-column: 6/9;
 }
 
-.panel1, .panel2, .panel3, .panel4, .panel5, .inputManifestation, .form-popup {
+.panel1, .panel2, .panel3, .panel4, .panel5, .panel6, .inputManifestation, .inputComment, .form-popup {
   background-color: whitesmoke;
   padding: 24px;
   border-radius: 8px;
@@ -157,7 +157,7 @@ button, input[type=button] {
 }
 
 /* Full-width input fields */
-.form-container input[type=number], .form-container select[name="ticketType"], .form-container select[name="ticketFullPrice"] {
+.form-container input[type=number], .form-container select[name="ticketType"], .form-container input[name="ticketFullPrice"], .form-container input[name="commentManifestation"] {
   width: 100%;
   padding: 15px;
   margin: 5px 0 22px 0;
@@ -166,7 +166,7 @@ button, input[type=button] {
 }
 
 /* When the inputs get focus, do something */
-.form-container input[type=number]:focus, .form-container select[name="ticketType"]:focus, .form-container select[name="ticketFullPrice"]:focus {
+.form-container input[type=number]:focus, .form-container select[name="ticketType"]:focus, .form-container input[name="ticketFullPrice"]:focus,  .form-container input[name="commentManifestation"]:focus {
   background-color: #ddd;
   outline: none;
 }

@@ -78,6 +78,20 @@ public class TicketService {
 		return dao.findForUser(loggedInUser);
 	}
 	
+	// vraca listu svih zavrsenih manifestacija za koje je korisnik kupio karte
+	@GET
+	@Path("/myFinishedManifestations")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<Manifestation> getFinishedManifestations(@Context HttpServletRequest request,
+			@Context HttpServletResponse response) {
+		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
+		ManifestationDAO manifestationDao =  (ManifestationDAO) ctx.getAttribute("manifestationDAO");
+		
+		User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
+		Collection<Manifestation> usersManifestations = dao.findManifestationsForUser(loggedInUser, manifestationDao.returnManifestationMap());
+		return usersManifestations;
+	}
+	
 	// rezervacija karte za odredjenu manifestaciju
 	// num - broj karata koje se rezervisu
 	// type - tip karata koje se rezervisu

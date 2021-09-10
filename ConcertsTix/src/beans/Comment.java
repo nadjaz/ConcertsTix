@@ -1,22 +1,40 @@
 package beans;
 
+import java.util.UUID;
+
 public class Comment {
 
+	public enum StatusComment {
+		APPROVED, DENIED, STANDBY;
+	};
+
+	private UUID id;
 	private User user;
 	private Manifestation manifestation;
 	private String comment;
 	private int rating;
+	private StatusComment status;
 
 	public Comment() {
 		super();
 	}
 
-	public Comment(User user, Manifestation manifestation, String comment, int rating) {
+	public Comment(User user, Manifestation manifestation, String comment, int rating, StatusComment status) {
 		super();
+		this.id = UUID.randomUUID();
 		this.user = user;
 		this.manifestation = manifestation;
 		this.comment = comment;
 		this.rating = rating;
+		this.status = status;
+	}
+
+	public UUID getId() {
+		return id;
+	}
+
+	public void setId(UUID id) {
+		this.id = id;
 	}
 
 	public User getUser() {
@@ -49,6 +67,14 @@ public class Comment {
 
 	public void setRating(int rating) {
 		this.rating = rating;
+	}
+
+	public StatusComment getStatus() {
+		return status;
+	}
+
+	public void setStatus(StatusComment status) {
+		this.status = status;
 	}
 
 }

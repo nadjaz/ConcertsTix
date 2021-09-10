@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ import beans.User.Role;
 
 public class UserDAO {
 
-	// kolekcija svih registrovanih inicijalnih korisnika ??????
+	// kolekcija svih registrovanih korisnika
 	private Map<String, User> users = new HashMap<>();
 
 	public UserDAO() {
@@ -213,6 +212,7 @@ public class UserDAO {
 					String gender = st.nextToken().trim();
 					DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 					LocalDate dateOfBirth = LocalDate.parse(st.nextToken().trim(), pattern);
+					@SuppressWarnings("unused")
 					Role role = Role.valueOf(st.nextToken().trim());
 					// pravimo administatore
 					users.put(username, new User(username, password, name, surname, gender, dateOfBirth));

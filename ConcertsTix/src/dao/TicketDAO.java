@@ -64,7 +64,7 @@ public class TicketDAO {
 		return reservedTickets;
 	}
 
-	// returns all tickets for the sent user
+	// returns all reserved tickets for the sent user
 	public Collection<Ticket> findForUser(User user) {
 		Collection<Ticket> myTickets = new ArrayList<>();
 		for (Ticket ticket : tickets.values()) {
@@ -73,6 +73,28 @@ public class TicketDAO {
 			}
 		}
 		return myTickets;
+	}
+	
+	// vracamo manifestacije za koje je korisnik rezervisao karte
+	// a koje su se vec odrzale
+	// da bi kupac mogao da ostavi komentar
+	public Collection<Manifestation> findManifestationsForUser(User user, NavigableMap<Integer, Manifestation> manifestations) {
+		
+		Collection<Ticket> usersTickets = findForUser(user);
+		Collection<Manifestation> usersManifestations = new ArrayList<Manifestation>();
+		Collection<Manifestation> filteredManifestations = new ArrayList<Manifestation>();
+		
+		LocalDate todaysDate = LocalDate.now();
+		
+		for (Ticket ticket : usersTickets) {
+			usersManifestations.add(ticket.getManifestation());
+		}
+		for (Manifestation manifestation : usersManifestations) {
+			if(todaysDate.isAfter(manifestation.getDate())) {
+				filteredManifestations.add(manifestations.get(manifestation.getId()));
+			}
+		}
+		return filteredManifestations;
 	}
 
 	public Integer findLastId() {

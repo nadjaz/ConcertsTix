@@ -64,7 +64,7 @@ function listAllManifestations(manifestation, manifestationId, panelName, button
 	labelImage.width(100);
 	labelImage.height(100);
 
-	let buttonManifestation = $('<input type="button" form="form'+ manifestationId +'" id="' + manifestationId + '" value=' + buttonValue + '>');
+	let buttonManifestation = $('<input type="button" form="form'+ manifestationId +'" id="' + manifestationId + '" value="' + buttonValue + '" name = "' + buttonValue + '">');
 	
 	div.append(forma);
 	forma.append(div1);
@@ -127,6 +127,37 @@ function listAllTickets(ticket, panelName, inputButtonToAppend, ticketId) {
 	div1.append(label7);
 	div1.append(labelTicketType);
 	div1.append(inputButtonToAppend);	
+}
+
+// _____________________ADDING INFO TO ALL COMMENTS PANEL
+function listAllComments(comment, panelName, buttonComment1, buttonComment2) {
+    	
+    let div = $(panelName);
+    let div1 = $('<div class="input"></div>');
+	let label1 = $('<label for="userComment">User:</label>');
+    let labelUser = $('<label name="userComment">' + comment.user.username + '</label><br>');
+	let label2 = $('<label for="manifestationComment">Manifestation:</label>');
+	let labelManifestation = $('<label name="manifestationComment">' + comment.manifestation.name + '</label><br>');
+	let label3 = $('<label for="commentComment">Comment:</label>');
+	let labelComment = $('<label name="commentComment">' + comment.comment + '</label><br>');
+	let label4 = $('<label for="ratingComment">Rating:</label>');
+	let labelRating = $('<label name="ratingComment">' + comment.rating + '</label><br>');
+	let label5 = $('<label for="statusComment">Comment status:</label>');
+	let labelStatus = $('<label name="statusComment">' + comment.status + '</label><br>');
+	
+	div.append(div1);
+	div1.append(label1);
+	div1.append(labelUser);
+	div1.append(label2);
+	div1.append(labelManifestation);
+	div1.append(label3);
+	div1.append(labelComment);
+	div1.append(label4);
+	div1.append(labelRating);
+	div1.append(label5);
+	div1.append(labelStatus);
+	div1.append(buttonComment1);
+	div1.append(buttonComment2);		
 }
 
 // _____________________ADDING INFO TO USER PROFILE INFORMATION PANEL
@@ -269,7 +300,7 @@ function updateManifestation(manifestation, manifestationId, panelName, buttonVa
 	labelImage.width(100);
 	labelImage.height(100);
 
-	let buttonManifestation = $('<input type="button" form="form'+ manifestationId +'" id="' + manifestationId + '" value=' + buttonValue + '>')
+	let buttonManifestation = $('<input type="button" form="form'+ manifestationId +'" id="' + manifestationId + '" value="' + buttonValue + '" name = "' + buttonValue + '">')
 	
 	div.append(forma);
 	forma.append(div1);
@@ -458,7 +489,9 @@ $(document).ready(function() {
 
 								// ________________ WHEN A BUYER WANTS TO RESERVE A TICKET FOR A SPECIFIC MANIFESTATION
 								$(function(){
-									$('input[type="button"]').click(function(){
+									name=Comment
+									//input[type="button"]
+									$('input[name=Reserve]').click(function(){
 										let manifestationId = this.id;
 
 										// setting the max value of tickets you can reserve for that event
@@ -571,6 +604,50 @@ $(document).ready(function() {
 							}
 						});
 
+						//__________ REQUEST TO GET ALL MANIFESTATIONS BUYER CAN COMMENT ON
+						$.get({
+							url: 'rest/tickets/myFinishedManifestations',
+							success: function(manifestations) {
+								$(".panel5").append($('<h1 class="panel__heading">My finished manifestations</h1><br/>'));
+								for (let manifestation of manifestations) {
+									listAllManifestations(manifestation, manifestation.id, ".panel5", "Comment");
+								}
+
+
+								$('input[name=Comment]').click(function() {
+									let manifestationId = this.id;
+									openForm("myForm3");
+
+									$("form[name=formPopUpComment]").submit(function() {
+										event.preventDefault();
+										
+										closeForm("myForm3");
+
+										let data = {
+											"comment" : $("#commentManifestation").val(),
+											"rating" : $("#ratingManifestation").val()
+										};
+
+										$.post({
+											url: 'rest/comments/create/' + manifestationId,
+											data: JSON.stringify(data),
+											contentType: 'application/json',
+											success: function() {
+												$('#successActivate').text("Comment on manifestations successfully created!");
+												$("#successActivate").show().delay(10000).fadeOut();
+											}
+										});
+
+									});
+
+									
+								});							
+							}
+
+
+
+						});
+
 						// get buyers points score
 						// _____________________________________REQUEST TO GET USER POINTS SCORE
 						$.get({
@@ -603,7 +680,8 @@ $(document).ready(function() {
 								}
 
 								// UPDATE MANIFESTATION BY SELLER
-								$('input[type="button"]').click(function(){
+								// input[type="button"]
+								$('input[name=Change]').click(function(){
 									let manifestationId = this.id;
 				
 									let data = {
@@ -688,6 +766,59 @@ $(document).ready(function() {
 							});	
 						});
 
+						// _____________________________________REQUEST TO LIST ALL STANDBY COMMENTS
+						// so that SELLER can approve or deny them
+						$.get({
+							url: 'rest/comments/listStandby',
+							success: function(comments) {
+								$(".panel5").append($('<h1 class="panel__heading">All standby comments</h1><br/>'));
+								for (let comment of comments) {
+									let buttonComment1 = $('<input type="button" + value="Approve" id="' +  comment.id + '" name = "Approve"><br/>');
+									let buttonComment2 = $('<input type="button" + value="Deny" id="' +  comment.id + '" name = "Deny"><br/>');
+									listAllComments(comment, ".panel5", buttonComment1, buttonComment2);
+								}
+
+								$('input[name=Approve]').click(function(){
+									let commentId = this.id;
+
+									$.ajax({
+										url: 'rest/comments/approve/' + commentId,
+										type: 'PUT',
+										success: function() {
+											$('#successActivate').text("Successfully approved comment!");
+											$("#successActivate").show().delay(8000).fadeOut();
+											window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
+										},
+										error: function() {
+											$('#errorActivate').text("Error approving comment!");
+											$("#errorActivate").show().delay(8000).fadeOut();
+										}
+									});
+
+								
+								});
+
+								$('input[name=Deny]').click(function(){
+									let commentId = this.id;
+									$('#successActivate').text("Successfully denied comment!");
+									$("#successActivate").show().delay(8000).fadeOut();
+								});
+
+
+							}
+						});
+
+						//___________________________________REQUEST TO LIST ALL COMMENTS WITH ALL STATUSES
+						$.get({
+							url: 'rest/comments/list',
+							success: function(comments) {
+								$(".panel6").append($('<h1 class="panel__heading">All comments</h1><br/>'));
+								for (let comment of comments) {
+									listAllComments(comment, ".panel6");
+								}
+							}
+						});
+
 						//alert("User logged in has a role type SELLER!");
 					}
 					// ____________________________________________________________ADMINISTRATOR ROLE_____________________________________________________________
@@ -712,8 +843,9 @@ $(document).ready(function() {
 								for (let manifestation of manifestations) {
 									listAllManifestations(manifestation, manifestation.id, ".panel5", "Activate");
 								}
-
-								$('input[type="button"]').click(function(){
+								
+								//'input[type="button"]'
+								$('input[name=Activate]').click(function(){
 									let manifestationId = this.id;
 									// za kliknutu manifestaciju trazimo objekat manifestacija
 									$.get({
@@ -824,6 +956,20 @@ $(document).ready(function() {
 					
 							
 						});
+
+						//___________________________________REQUEST TO LIST ALL COMMENTS WITH ALL STATUSES
+						$.get({
+							url: 'rest/comments/list',
+							success: function(comments) {
+								$(".panel6").append($('<h1 class="panel__heading">All comments</h1><br/>'));
+								for (let comment of comments) {
+									listAllComments(comment, ".panel6");
+								}
+							}
+						});
+
+						
+
 					}
 				}
 			});

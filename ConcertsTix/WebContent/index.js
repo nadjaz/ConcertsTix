@@ -1,4 +1,4 @@
-function listAllManifestations(manifestation) {
+function listAllManifestations(manifestation, comments) {
     	
     let div = $(".panel1");
     let div1 = $('<div class="inputManifestation"></div>');
@@ -19,10 +19,11 @@ function listAllManifestations(manifestation) {
 	let labelLocation = $('<label name="location">' + manifestation.location.city + '</label><br>');
 
 	let label8 =  $('<label for="image">Image:</label>');
-	let labelImage =$('<img id="image" src="' + manifestation.image + '"/>'); 
+	let labelImage =$('<img id="image" src="' + manifestation.image + '"/><br/><br/>'); 
 	labelImage.width(100);
 	labelImage.height(100);
-	
+
+
 	div.append(div1);
 	div1.append(label1);
 	div1.append(labelName);
@@ -39,7 +40,32 @@ function listAllManifestations(manifestation) {
 	div1.append(label7);
 	div1.append(labelLocation)
 	div1.append(label8);
-	div1.append(labelImage);	
+	div1.append(labelImage);
+	
+	for (let comment of comments) {
+		
+		let div2 = $('<div class="inputComment"></div>');
+		let label9 =  $('<h3 class="panel__heading">ALL COMMENTS</h3><br/>');
+		let label10 = $('<label for="userComment">User:</label>');
+		let labelUser = $('<label name="userComment">' + comment.user.username + '</label><br>');
+		let label11 = $('<label for="manifestationComment">Manifestation:</label>');
+		let labelManifestation = $('<label name="manifestationComment">' + comment.manifestation.name + '</label><br>');
+		let label12 = $('<label for="commentComment">Comment:</label>');
+		let labelComment = $('<label name="commentComment">' + comment.comment + '</label><br>');
+		let label13 = $('<label for="ratingComment">Rating:</label>');
+		let labelRating = $('<label name="ratingComment">' + comment.rating + '</label><br>');
+		
+		div1.append(div2);
+		div2.append(label9);
+		div2.append(label10);
+		div2.append(labelUser);
+		div2.append(label11);
+		div2.append(labelManifestation);
+		div2.append(label12);
+		div2.append(labelComment);
+		div2.append(label13);
+		div2.append(labelRating);
+	}	
 }
 
 
@@ -186,7 +212,16 @@ $(document).ready(function() {
 		url: 'rest/manifestations/list',
 		success: function(manifestations) {
 			for (let manifestation of manifestations) {
-				listAllManifestations(manifestation);
+
+				$.get({
+					url: 'rest/comments/find/' + manifestation.id,
+					success: function(comments) {
+
+						listAllManifestations(manifestation, comments);
+					}
+				});
+
+				
 			}
 		}
 	});

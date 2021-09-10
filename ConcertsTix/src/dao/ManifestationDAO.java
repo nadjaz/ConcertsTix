@@ -28,6 +28,10 @@ public class ManifestationDAO {
 	public ManifestationDAO(String contextPath) {
 		loadManifestations(contextPath);
 	}
+	
+	public NavigableMap<Integer, Manifestation> returnManifestationMap() {
+		return manifestations;
+	}
 
 	/**
 	 * Vraæa manifestaciju za prosleðene parametre. Vraæa null ako manifestacija ne

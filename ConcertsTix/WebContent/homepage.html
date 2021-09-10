@@ -41,7 +41,7 @@
 							<label for="ticketNumber"><b>Number of tickets:</b></label>
 							<input type="number" placeholder="Enter ticket number" name="ticketNumber" id="ticketNumber" min="1" required><br/><br/>
 						
-							<label for="ticketType"><b>Ticket Type</b></label>
+							<label for="ticketType"><b>Ticket Type:</b></label>
 							<select name="ticketType" placeholder="Select ticket type" id="ticketType" required>
 								<option value="REGULAR">Regular</option>
 								<option value="FAN_PIT">Fan pit</option>
@@ -54,13 +54,28 @@
 
 					<div class="form-popup" id="myForm2">
 						<form action="#" class="form-container" name="formPopUpTicket2">
-						  <h1 class="panel__heading">Confirm ticket reservation</h1><br/>
-					  
-						  <label for="ticketFullPrice"><b>Ticket full price</b></label>
-						  <input type="number" name="ticketFullPrice" id="ticketFullPrice" readonly>
-					  
-						  <button type="submit" class="btn">Reserve</button><br/>
-						  <button type="button" class="btn cancel" onclick="closeForm('myForm2')">Cancel</button>
+							<h1 class="panel__heading">Confirm ticket reservation</h1><br/>
+
+							<label for="ticketFullPrice"><b>Ticket full price:</b></label>
+							<input type="number" name="ticketFullPrice" id="ticketFullPrice" readonly>
+
+							<button type="submit" class="btn">Reserve</button><br/>
+							<button type="button" class="btn cancel" onclick="closeForm('myForm2')">Cancel</button>
+						</form>
+					</div>
+
+					<div class="form-popup" id="myForm3">
+						<form action="#" class="form-container" name="formPopUpComment">
+							<h1 class="panel__heading">Manifestation comment</h1><br/>
+
+							<label for="commentManifestation"><b>Comment:</b></label>
+							<input type="text" placeholder="Enter manifestation comment" name="commentManifestation" id="commentManifestation" required><br/><br/>
+
+							<label for="ratingManifestation"><b>Manifestation rating:</b></label>
+							<input type="number" placeholder="Enter manifestation rating" name="ratingManifestation" id="ratingManifestation" min="1" max="5" required><br/><br/>
+
+							<button type="submit" class="btn">Leave comment</button><br/>
+							<button type="button" class="btn cancel" onclick="closeForm('myForm3')">Cancel</button>
 						</form>
 					</div>
 
@@ -130,6 +145,10 @@
 						<label id="successActivate" hidden="true"></label>
 					</div>
 
+
+				</div><br/><br/>
+
+				<div class="panel6">
 
 				</div>
 			</div>
