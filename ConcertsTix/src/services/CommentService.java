@@ -70,7 +70,7 @@ public class CommentService {
 	@GET
 	@Path("/find/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Collection<Comment> findApprovedCommentForManifestation(@PathParam("id") Integer manifestationId,
+	public Collection<Comment> findApprovedCommentForManifestation(@PathParam("id") UUID manifestationId,
 			@Context HttpServletRequest request, @Context HttpServletResponse response) {
 		CommentDAO dao = (CommentDAO) ctx.getAttribute("commentDAO");
 
@@ -86,7 +86,7 @@ public class CommentService {
 	@POST
 	@Path("/create/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createComment(@PathParam("id") Integer manifestationId, Comment comment,
+	public Response createComment(@PathParam("id") UUID manifestationId, Comment comment,
 			@Context HttpServletRequest request, @Context HttpServletResponse response) throws URISyntaxException {
 		CommentDAO dao = (CommentDAO) ctx.getAttribute("commentDAO");
 

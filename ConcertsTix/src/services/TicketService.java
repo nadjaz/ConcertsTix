@@ -1,6 +1,7 @@
 package services;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
@@ -102,14 +103,13 @@ public class TicketService {
 			@Context HttpServletResponse response) {
 		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
 		
-		Integer getLastId = dao.findLastId();
 		User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
 		loggedInUser.setPoints(loggedInUser.getPoints() + (manifestationToBeReserved.getPriceRegular()/1000 * 133));
 		
-		Ticket newTicket = new Ticket(++getLastId, manifestationToBeReserved, loggedInUser, StatusTicket.RESERVED, type, num);
+		Ticket newTicket = new Ticket(manifestationToBeReserved, loggedInUser, StatusTicket.RESERVED, type, num);
 		
 		if (dao.saveTicket(newTicket) != null) {
-			return Response.status(200).entity("Successfully reserveded your ticket").build();
+			return Response.status(200).entity(newTicket.getId()).build();
 		}
 		return Response.status(400).entity("Ticket with the same id already created").build();
 	}
@@ -119,7 +119,7 @@ public class TicketService {
 	@PUT
 	@Path("/cancel/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response cancelTicket(@PathParam("id") Integer id, @Context HttpServletRequest request) {
+	public Response cancelTicket(@PathParam("id") UUID id, @Context HttpServletRequest request) {
 		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
 		
 		Ticket ticket = dao.cancelTicket(id);
@@ -144,13 +144,13 @@ public class TicketService {
 		return Response.status(404).entity("Ticket not found").build();
 	}
 	
-	// vraca poslednju napravljeni ticket
+	// vraca ticket za poslati id
 	@GET
-	@Path("/lastOne")
+	@Path("/findOne/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Ticket lastTicketCreated(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+	public Ticket lastTicketCreated(@PathParam("id") UUID ticketId, @Context HttpServletRequest request, @Context HttpServletResponse response) {
 		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
-		Ticket ticket = dao.findLastTicket();
+		Ticket ticket = dao.find(ticketId);
 		if (ticket != null) {
 			Response.status(200).entity("Found the ticket").build();
 			return ticket;

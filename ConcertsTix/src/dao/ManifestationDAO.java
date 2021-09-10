@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.NavigableMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import beans.Location;
 import beans.Manifestation;
@@ -19,7 +20,7 @@ import beans.Manifestation.TypeManifestation;
 public class ManifestationDAO {
 
 	// kolekcija svih manifestacija
-	private NavigableMap<Integer, Manifestation> manifestations = new TreeMap<>();
+	private NavigableMap<UUID, Manifestation> manifestations = new TreeMap<>();
 
 	public ManifestationDAO() {
 
@@ -28,8 +29,8 @@ public class ManifestationDAO {
 	public ManifestationDAO(String contextPath) {
 		loadManifestations(contextPath);
 	}
-	
-	public NavigableMap<Integer, Manifestation> returnManifestationMap() {
+
+	public NavigableMap<UUID, Manifestation> returnManifestationMap() {
 		return manifestations;
 	}
 
@@ -40,25 +41,12 @@ public class ManifestationDAO {
 	 * @param id
 	 * @return
 	 */
-	public Manifestation find(Integer id) {
+	public Manifestation find(UUID id) {
 		if (!manifestations.containsKey(id)) {
 			return null;
 		}
 		Manifestation manifestation = manifestations.get(id);
 		return manifestation;
-	}
-
-	public Integer findLastId() {
-		return manifestations.lastKey();
-	}
-
-	public Manifestation findLastManifestation() {
-		Integer lastId = findLastId();
-		Manifestation foundManifestation = manifestations.get(lastId);
-		if (foundManifestation != null) {
-			return foundManifestation;
-		}
-		return null;
 	}
 
 	public Collection<Manifestation> findAll() {
@@ -88,7 +76,7 @@ public class ManifestationDAO {
 	}
 
 	// updejtuje postojecu manifestaciju
-	public Manifestation update(Integer id, Manifestation changedManifestation) {
+	public Manifestation update(UUID id, Manifestation changedManifestation) {
 		if (!manifestations.containsKey(id)) {
 			return null;
 		}
@@ -130,7 +118,7 @@ public class ManifestationDAO {
 		return null;
 	}
 
-	public boolean activate(Integer id) {
+	public boolean activate(UUID id) {
 		Manifestation manifestation = find(id);
 		if (manifestation != null) {
 			manifestation.setStatus(StatusManifestation.ACTIVE);
@@ -176,7 +164,6 @@ public class ManifestationDAO {
 					continue;
 				st = new StringTokenizer(line, ";");
 				while (st.hasMoreTokens()) {
-					Integer id = Integer.parseInt(st.nextToken().trim());
 					String name = st.nextToken().trim();
 					TypeManifestation typeManifestation = TypeManifestation.valueOf(st.nextToken().trim());
 					int seatingNumber = Integer.parseInt(st.nextToken().trim());
@@ -190,8 +177,9 @@ public class ManifestationDAO {
 
 					String image = "img/" + st.nextToken().trim();
 
-					manifestations.put(id, new Manifestation(id, name, typeManifestation, seatingNumber, date,
-							priceRegular, status, location, image));
+					Manifestation manifestation = new Manifestation(name, typeManifestation, seatingNumber, date,
+							priceRegular, status, location, image);
+					manifestations.put(manifestation.getId(), manifestation);
 				}
 
 			}

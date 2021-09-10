@@ -1,7 +1,7 @@
-0001;Game Of Thrones;THEATRE;90;2021-08-17;250;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;got.jpg
-0002;Rolling Stones 50 Years;CONCERT;1500;2021-12-20;800;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;rollingstones.jpg
-0003;Lollapalooza;FESTIVAL;13000;2022-08-17;200;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;lolapalo.jpg
-0004;Exit;FESTIVAL;10000;2022-07-04;70;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;exit.jpg
-0005;Aladdin;THEATRE;80;2021-09-17;50;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;aladin.jpg
-0006;The Beatles;CONCERT;2000;2022-01-20;800;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;thebeatles.jpg
-0007;Man Of La Mancha;THEATRE;120;2021-03-24;120;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;man.jpg
+Game Of Thrones;THEATRE;90;2021-08-17;250;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;got.jpg
+Rolling Stones 50 Years;CONCERT;1500;2021-12-20;800;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;rollingstones.jpg
+Lollapalooza;FESTIVAL;13000;2022-08-17;200;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;lolapalo.jpg
+Exit;FESTIVAL;10000;2022-07-04;70;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;exit.jpg
+Aladdin;THEATRE;80;2021-09-17;50;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;aladin.jpg
+The Beatles;CONCERT;2000;2022-01-20;800;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;thebeatles.jpg
+Man Of La Mancha;THEATRE;120;2021-03-24;120;ACTIVE;45,35,Pennsylvania Plaza,4,New York,10001;man.jpg

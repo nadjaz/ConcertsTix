@@ -93,8 +93,8 @@ function listAllTickets(ticket, panelName, inputButtonToAppend, ticketId) {
     	
     let div = $(panelName);
     let div1 = $('<div class="input"></div>');
-	let label1 = $('<label for="id">Id:</label>');
-    let labelId = $('<label name="id">' + ticket.id + '</label><br>');
+	//let label1 = $('<label for="id">Id:</label>');
+    //let labelId = $('<label name="id">' + ticket.id + '</label><br>');
 	let label2 = $('<label for="manifestation">Manifestation:</label>');
 	let labelManifestation = $('<label name="manifestation">' + ticket.manifestation.name + '</label><br>');
 	let label3 = $('<label for="date">Date:</label>');
@@ -112,8 +112,8 @@ function listAllTickets(ticket, panelName, inputButtonToAppend, ticketId) {
 	let labelTicketType = $('<label name="typeTicket">' + ticket.typeTicket + '</label><br>');
 	
 	div.append(div1);
-	div1.append(label1);
-	div1.append(labelId);
+	//div1.append(label1);
+	//div1.append(labelId);
 	div1.append(label2);
 	div1.append(labelManifestation);
 	div1.append(label3);
@@ -426,13 +426,13 @@ $(document).ready(function() {
 							success: function(tickets) {
 								$(".panel4").append($('<h1 class="panel__heading">My tickets</h1><br/>'));
 								for (let ticket of tickets) {
-									let inputToAppend = $('<button id="cancelTicketButton" value="' + ticket.id + '">Cancel</button>');
+									let inputToAppend = $('<input type="button" value="Cancel" id="' + ticket.id + '" name="Cancel">');
 									listAllTickets(ticket, ".panel4", inputToAppend, ticket.id);
 								}
 
-								$("#cancelTicketButton").click(function() {
+								$('input[name=Cancel]').click(function() {
 
-									let ticketId =$(this).attr("value");
+									let ticketId =this.id;
 									let manifestationDate = $('#date' + ticketId).val();
 
 									// nalazimo danasnji datum
@@ -457,7 +457,7 @@ $(document).ready(function() {
 											}
 										});
 									} else {
-										$('#errorCancel').text("Cannot cancel your ticket because the manifestation is less than 7 days away from today!");
+										$('#errorCancel').text("Cannot cancel your ticket because the manifestation is less than 7 days away from today or in the past!");
 										$("#errorCancel").show().delay(3000).fadeOut();
 									}
 								});
@@ -549,14 +549,14 @@ $(document).ready(function() {
 																	url: 'rest/tickets/reserve/' + ticketType + '/' + numberOfTickets,
 																	data: JSON.stringify(manifestation),
 																	contentType: 'application/json',
-																	success: function() {
+																	success: function(ticketId) {
 																		
 																		$('#successReserve').text("Successfully reserved a ticket!");
 																		$("#successReserve").show().delay(3000).fadeOut();
 
-																		// __________________REQUEST TO GET THE LAST TICKET CREATED
+																		// __________________REQUEST TO GET THE TICKET WITH TICKETID JUST CREATED
 																		$.get({
-																			url: 'rest/tickets/lastOne',
+																			url: 'rest/tickets/findOne/' + ticketId,
 																			success: function(ticket) {
 																				
 																				// dodajemo rezervisani ticket u listu svih ticketa useru koji je rezervisao
@@ -570,8 +570,7 @@ $(document).ready(function() {
 																						$("#successReserve").show().delay(3000).fadeOut();
 																						//closeForm2("myForm2");
 																						window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
-																					}
-																					
+																					}	
 																				});
 
 																				
@@ -734,30 +733,21 @@ $(document).ready(function() {
 								url: 'rest/manifestations/create',
 								data: JSON.stringify(data),
 								contentType: 'application/json',
-								success: function() {
-
+								success: function(manifestationId) {
 									$('#successCreate').text("Manifestation with name "  +  $("input[name=nameManifestationCreate]").val() + " succesfully created!");
 									$("#successCreate").show().delay(3000).fadeOut();
 
-									// __________________REQUEST TO GET THE LAST MANIFESTATION CREATED
-									$.get({
-										url: 'rest/manifestations/lastOne',
-										success: function(manifestation) {
-
-											// dodajemo napravljenu manifestaciju u listu manifestacija SELLERa
-											$.post({
-												url: 'rest/users/addManifestation',
-												data: JSON.stringify(manifestation),
-												contentType: 'application/json',
-												success: function() {
-													// dodajemo rezervisani ticket u listu svih ticketa useru koji je rezervisao
-													$('#successCreate').text("Successfully added manifestation to users manifestation list!");
-													$("#successCreate").show().delay(3000).fadeOut();
-													window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
-												}	
-											});
-										}
-									});	
+									// dodajemo napravljenu manifestaciju (preko manifestationId) u listu manifestacija SELLERa
+									$.post({
+										url: 'rest/users/addManifestation/' + manifestationId,
+										success: function() {
+											// dodajemo rezervisani ticket u listu svih ticketa useru koji je rezervisao
+											$('#successCreate').text("Successfully added manifestation to users manifestation list!");
+											$("#successCreate").show().delay(3000).fadeOut();
+											window.location.href="http://localhost:8080/ConcertsTix/homepage.html";
+										}	
+									});
+									
 								},
 								error: function() {
 									$('#errorCreate').text("Date already occupied, you need to entry a different manifestation date!");

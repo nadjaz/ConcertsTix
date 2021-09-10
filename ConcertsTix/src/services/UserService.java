@@ -3,6 +3,7 @@ package services;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
@@ -13,6 +14,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -156,13 +158,13 @@ public class UserService {
 	}
 
 	@POST
-	@Path("/addManifestation")
+	@Path("/addManifestation/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response addManifestation(Manifestation manifestation, @Context HttpServletRequest request) {
+	public Response addManifestation(@PathParam("id") UUID manifestationId, Manifestation manifestation, @Context HttpServletRequest request) {
 		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
 		
 		ManifestationDAO manifestationDao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-		Manifestation foundManifestation = manifestationDao.find(manifestation.getId());
+		Manifestation foundManifestation = manifestationDao.find(manifestationId);
 		
 		User user = (User) request.getSession().getAttribute("loggedInUser");
 		userDao.addManifestation(user, foundManifestation);

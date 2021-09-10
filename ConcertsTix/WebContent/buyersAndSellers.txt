@@ -107,3 +107,10 @@ novak;novak;novak;Djokovic;female;2021-09-11;SELLER
 milica;milica;milica;Zdravkovic;female;2021-09-11;BUYER
 novak;novak;novak;Djokovic;female;2021-09-11;SELLER
 milica;milica;milica;Zdravkoci;female;2021-09-11;BUYER
+novak;novak;novak;Djokovic;female;2021-09-11;SELLER
+novak;novak;novak;Djokovic;female;2021-09-11;SELLER
+novak;novak;novak;Djokovic;female;2021-09-11;SELLER
+milica;milica;milica;Zdravkovic;female;2021-09-11;BUYER
+milica;milica;milica;Zdravkovic;female;2021-09-11;BUYER
+novak;novak;novak;Djokovic;female;2021-09-11;SELLER
+milica;milica;milica;Zdravkoci;female;2021-09-11;BUYER

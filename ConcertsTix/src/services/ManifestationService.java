@@ -2,6 +2,7 @@ package services;
 
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
@@ -53,9 +54,10 @@ public class ManifestationService {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 		return dao.findAll();
 	}
-	
+
 	// vraca listu svih AKTIVNIH manifestacija
-	// kako bi sam kupac mogao da vidi samo manifestacije za kojih ima dovoljno karata
+	// kako bi sam kupac mogao da vidi samo manifestacije za kojih ima dovoljno
+	// karata
 	@GET
 	@Path("/listActive")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -63,7 +65,7 @@ public class ManifestationService {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 		return dao.findAllActive();
 	}
-	
+
 	// vraca listu svih NEAKTIVNIH manifestacija
 	// kako bi administrator mogao da od manifestacije napravi AKTIVNU
 	@GET
@@ -73,36 +75,36 @@ public class ManifestationService {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 		return dao.findAllInactive();
 	}
-	
+
 	@POST
 	@Path("/create")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createManifestation(Manifestation manifestation, @Context HttpServletRequest request, @Context HttpServletResponse response) {
+	public Response createManifestation(Manifestation manifestation, @Context HttpServletRequest request,
+			@Context HttpServletResponse response) {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-	
+
 		if (!dao.checkDateAvailability(manifestation.getDate())) {
-			return Response.status(400).entity("Date already occupied, you need to entry a different manifestation date").build();
+			return Response.status(400)
+					.entity("Date already occupied, you need to entry a different manifestation date").build();
 		}
-		
-		Integer getLastId = dao.findLastId();
-		manifestation.setId(++getLastId);
-		manifestation.setStatus(StatusManifestation.INACTIVE);
+
 		Location location = new Location(45, 35, "Pennsylvania Plaza", 4, "New York", 10001);
-		manifestation.setLocation(location);
-		
-		//User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
-		Manifestation newManifestation = dao.saveManifestation(manifestation);
-		if (newManifestation != null) {
-			return Response.status(200).entity("Successfully created a manifestation").build();
+
+		Manifestation newManifestation = new Manifestation(manifestation.getName(),
+				manifestation.getTypeManifestation(), manifestation.getSeatingNumber(), manifestation.getDate(),
+				manifestation.getPriceRegular(), StatusManifestation.INACTIVE, location, manifestation.getImage());
+
+		if (dao.saveManifestation(newManifestation) != null) {
+			return Response.status(200).entity(newManifestation.getId()).build();
 		}
 		return Response.status(400).entity("Manifestation with the same id already created").build();
 	}
-	
+
 	@PUT
 	@Path("/update/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateManifestation(@PathParam("id") Integer id, Manifestation manifestation, @Context HttpServletRequest request, @Context HttpServletResponse response)
-			throws URISyntaxException {
+	public Response updateManifestation(@PathParam("id") UUID id, Manifestation manifestation,
+			@Context HttpServletRequest request, @Context HttpServletResponse response) throws URISyntaxException {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 		Manifestation updatedManifestation = dao.update(id, manifestation);
 		if (updatedManifestation == null) {
@@ -116,7 +118,7 @@ public class ManifestationService {
 	@Path("/findOne/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Manifestation reserveManifestation(@PathParam("id") Integer id) {
+	public Manifestation reserveManifestation(@PathParam("id") UUID id) {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 		Manifestation manifestation = dao.find(id);
 		if (manifestation != null) {
@@ -126,28 +128,13 @@ public class ManifestationService {
 		Response.status(404).entity("Manifestation not found").build();
 		return null;
 	}
-	
-	// vraca poslednju napravljenu manifestaciju
-	@GET
-	@Path("/lastOne")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Manifestation lastManifestationCreated(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-		Manifestation manifestation = dao.findLastManifestation();
-		if (manifestation != null) {
-			Response.status(200).entity("Found the manifestation").build();
-			return manifestation;
-		}
-		Response.status(404).entity("Manifestation not found").build();
-		return null;
-	}
-	
+
 	// updejtuje manifestaciju kako bi smanjio broj slobodnih mesta
 	// jer je manifestacija upravo rezervisana
 	@PUT
 	@Path("/reserveOne/{id}/{num}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response reserveManifestationSeatingNumber(@PathParam("id") Integer id, @PathParam("num") Integer num) {
+	public Response reserveManifestationSeatingNumber(@PathParam("id") UUID id, @PathParam("num") Integer num) {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 		Manifestation manifestation = dao.find(id);
 		if (manifestation != null) {
@@ -158,12 +145,12 @@ public class ManifestationService {
 		}
 		return Response.status(404).entity("Manifestation not found").build();
 	}
-	
+
 	// aktivira manifestaciju
 	@GET
 	@Path("/activateOne/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response activateManifestation(@PathParam("id") Integer id) {
+	public Response activateManifestation(@PathParam("id") UUID id) {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 		if (dao.activate(id)) {
 			return Response.status(200).entity("Successfully activated the manifestation").build();

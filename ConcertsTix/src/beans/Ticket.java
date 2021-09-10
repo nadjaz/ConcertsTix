@@ -1,6 +1,7 @@
 package beans;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class Ticket {
 
@@ -12,7 +13,7 @@ public class Ticket {
 		RESERVED, CANCELED;
 	};
 
-	private Integer id;
+	private UUID id;
 	private Manifestation manifestation;
 	private LocalDate date;
 	private Double price;
@@ -25,10 +26,10 @@ public class Ticket {
 		super();
 	}
 
-	public Ticket(Integer id, Manifestation manifestation, User buyerNameSurname, StatusTicket statusTicket,
+	public Ticket(Manifestation manifestation, User buyerNameSurname, StatusTicket statusTicket,
 			TypeTicket typeTicket, Integer numberOfTickets) {
 		super();
-		this.id = id;
+		this.id = UUID.randomUUID();
 		this.manifestation = manifestation;
 		this.date = manifestation.getDate();
 
@@ -46,11 +47,11 @@ public class Ticket {
 		this.numberOfTickets = numberOfTickets;
 	}
 
-	public Integer getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 

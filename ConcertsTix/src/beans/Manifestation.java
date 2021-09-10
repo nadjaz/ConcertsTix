@@ -1,6 +1,7 @@
 package beans;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class Manifestation {
 
@@ -12,7 +13,7 @@ public class Manifestation {
 		ACTIVE, INACTIVE;
 	};
 
-	private Integer id;
+	private UUID id;
 	private String name;
 	private TypeManifestation typeManifestation;
 	private Integer seatingNumber;
@@ -26,10 +27,10 @@ public class Manifestation {
 		super();
 	}
 
-	public Manifestation(Integer id, String name, TypeManifestation typeManifestation, Integer seatingNumber, LocalDate date,
+	public Manifestation(String name, TypeManifestation typeManifestation, Integer seatingNumber, LocalDate date,
 			Double priceRegular, StatusManifestation status, Location location, String image) {
 		super();
-		this.id = id;
+		this.id = UUID.randomUUID();
 		this.name = name;
 		this.typeManifestation = typeManifestation;
 		this.seatingNumber = seatingNumber;
@@ -107,11 +108,11 @@ public class Manifestation {
 		this.image = image;
 	}
 
-	public Integer getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 
