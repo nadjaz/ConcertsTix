@@ -6,6 +6,9 @@
 	<script src="jquery-3.3.1.min.js"></script>
 	<script src="index.js"></script>
 	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+	<script>moment().format();</script>
+	
 	<link rel="stylesheet" href="style.css"/>
 
 	<link rel="icon" href="img/logo4.png"/>
@@ -22,6 +25,69 @@
 				<img src="img/logo4.png" alt="ConcertsTix"/>
 			</a>
 		</div>
+
+		<div class="container">
+			<div class="search-container">
+				<form action="#" id="header-search-manifestations">
+					<h1 class="panel__heading">SEARCH MANIFESTATIONS</h1><br/>
+					<div class="manifestation-name" id="input-manifestation-name">
+						<label>Name:</label>
+						<input type="text" name="manifestation-name" id="manifestation-name"/>
+						
+					</div>
+
+					<div class="manifestation-type" id="select-manifestation-type">
+						<label>Type:</label>
+						<select name="manifestation-type">
+							<option value="CONCERT">Concert</option>
+							<option value="FESTIVAL">Festival</option>
+							<option value="THEATRE">Theatre</option>
+						</select>
+					</div>
+
+					<div class="manifestation-Startdate" id="input-manifestation-Startdate">
+						<label>Date:</label>
+						<input type="date" name="manifestation-Startdate" id="manifestation-Startdate"/>
+					</div>
+
+					<div class="manifestation-Enddate" id="input-manifestation-Enddate">
+						<label>Date:</label>
+						<input type="date" name="manifestation-Enddate" id="manifestation-Enddate"/>
+					</div>
+
+					<div class="manifestation-price" id="input-manifestation-priceMin">
+						<label>Minimum price:</label>
+						<input type="number" name="manifestation-priceMin" id="manifestation-priceMin" min="0" max="20000"/>
+					</div>
+
+					<div class="manifestation-price" id="input-manifestation-priceMax">
+						<label>Maximum price:</label>
+						<input type="number" name="manifestation-priceMax" id="manifestation-priceMax" min="0" max="20000"/>
+					</div>
+
+					<div class="input">
+						<label id="errorSearch" hidden="true"></label>
+					</div>
+		
+					<div class="input">
+						<label id="successSearch" hidden="true"></label>
+					</div>
+			
+					<button type="submit">SEARCH</button>
+
+				</form>
+			</div>
+			<div class="sort-container">
+				<label>Sort by:</label>
+				<select name="sort-by">
+					<option value="name">Name</option>
+					<option value="typeManifestation">Manifestation type</option>
+					<option value="date">Date</option>
+					<option value="priceRegular">Ticket price</option>
+				</select>
+				<button type="submit" name="sortButton">Sort</button>
+			</div>
+		</div>
 		
 		
 		<div id="container">
@@ -29,7 +95,7 @@
 			<div class="panel-container1Index">
 				<div class="panel1">
 					<h1 class="panel__heading">ALL MANIFESTATIONS</h1><br/>
-
+					
 				</div>
 			</div>
 

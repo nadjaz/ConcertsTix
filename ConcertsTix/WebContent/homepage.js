@@ -323,6 +323,234 @@ function updateManifestation(manifestation, manifestationId, panelName, buttonVa
 	div1.append(buttonManifestation);
 }
 
+// _____________________ADDING INFO TO ALL MANIFESTATION PANEL FOR SEARCH
+function listAllManifestationsSearch(manifestation, manifestationId, panelName, buttonValue) {
+    	
+    let div = $(panelName);
+
+	let forma = $('<form action=# method="post" id="form' +  manifestationId + '">');
+
+    let div1 = $('<div class="inputManifestation"></div>');
+	let label1 = $('<label for="name">Name:</label>');
+    let labelName = $('<label name="name">' + manifestation.name + '</label><br>');
+	let label2 = $('<label for="typeManifestation">Manifestation type:</label>');
+	let labelTypeManifestation = $('<label name="typeManifestation">' + manifestation.typeManifestation + '</label><br>');
+	let label3 = $('<label for="seatingNumber">Seating number:</label>');
+	let labelSeatingNumber = $('<input type="text" name="seatingNumber" id="seatingNumber' + manifestationId + '" readonly><br>').val(manifestation.seatingNumber);
+	let label4 = $('<label for="date">Date:</label>');
+	let labelDate = $('<label name="date">' + manifestation.date + '</label><br>');
+	let label5 = $('<label for="priceRegular">Regular price:</label>');
+	let labelPriceRegular = $('<label name="priceRegular">' + manifestation.priceRegular + '</label><br>');
+	let label6 = $('<label for="status">Status:</label>');
+	let labelStatus = $('<label name="status">' + manifestation.status + '</label><br>');
+
+	let label7 = $('<label for="location">Location:</label>');
+	let labelLocation = $('<label name="location">' + manifestation.location.city + '</label><br>');
+
+	let label8 =  $('<label for="image">Image:</label>');
+	let labelImage =$('<img id="image" src="' + manifestation.image + '"/>'); 
+	labelImage.width(100);
+	labelImage.height(100);
+
+	//let buttonManifestation = $('<input type="button" form="form'+ manifestationId +'" id="' + manifestationId + '" value="' + buttonValue + '" name = "' + buttonValue + '">');
+	
+	div.append(forma);
+	forma.append(div1);
+	div1.append(label1);
+	div1.append(labelName);
+	div1.append(label2);
+	div1.append(labelTypeManifestation);
+	div1.append(label3);
+	div1.append(labelSeatingNumber);
+	div1.append(label4);
+	div1.append(labelDate);
+	div1.append(label5);
+	div1.append(labelPriceRegular);
+	div1.append(label6);
+	div1.append(labelStatus);
+	div1.append(label7);
+	div1.append(labelLocation);
+	div1.append(label8);
+	div1.append(labelImage);
+	//div1.append(buttonManifestation);
+}
+
+function isIterable(obj) {
+	// checks for null and undefined
+	if (obj == null || Object.keys(obj).length === 0) {
+	  return false;
+	}
+	return typeof obj[Symbol.iterator] === 'function';
+}
+
+function searchByCriteriaAll(name, type, startDate, endDate, priceMin, priceMax) {
+    $.get({
+        url: 'rest/manifestations/findOne/' + name + '/' + type + '/' + startDate + '/' + endDate + '/' + priceMin + '/' + priceMax,
+        success: function(manifestations) {
+			let answer = isIterable(manifestations);
+			if (answer) {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				for (let manifestation of manifestations) {
+					listAllManifestationsSearch(manifestation, manifestation.id , ".panel1");
+				}
+			} else {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				$(".panel1").append($('<label for="messageSearch">No manifestations found!</label>'));
+				//listAllManifestationsSearch(manifestations, manifestations.id , ".panel1");
+			}
+        }
+    });
+}
+
+function searchByCriteriaByNameAndDate(name, type, startDate, endDate) {
+    $.get({
+        url: 'rest/manifestations/findDate/' + name + '/' + type + '/' + startDate + '/' + endDate,
+        success: function(manifestations) {
+			let answer = isIterable(manifestations);
+			if (answer) {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				for (let manifestation of manifestations) {
+					listAllManifestationsSearch(manifestation, manifestation.id , ".panel1");
+				}
+			} else {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				$(".panel1").append($('<label for="messageSearch">No manifestations found!</label>'));
+				//listAllManifestationsSearch(manifestations, manifestations.id , ".panel1");
+			}
+        }
+    });
+}
+
+function searchByCriteriaAllButDate(name, type, priceMin, priceMax) {
+    $.get({
+        url: 'rest/manifestations/findPrice/' + name + '/' + type + '/' + priceMin + '/' + priceMax,
+        success: function(manifestations) {
+			let answer = isIterable(manifestations);
+			if (answer) {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				for (let manifestation of manifestations) {
+					listAllManifestationsSearch(manifestation, manifestation.id , ".panel1");
+				}
+			} else {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				$(".panel1").append($('<label for="messageSearch">No manifestations found!</label>'));
+				//listAllManifestationsSearch(manifestations, manifestations.id , ".panel1");
+			}
+        }
+    });
+}
+
+function searchByCriteriaJustName(name, type) {
+    $.get({
+        url: 'rest/manifestations/findOne/' + name + '/' + type,
+        success: function(manifestations) {
+			let answer = isIterable(manifestations);
+			if (answer) {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				for (let manifestation of manifestations) {
+					listAllManifestationsSearch(manifestation, manifestation.id , ".panel1");
+				}
+			} else {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				$(".panel1").append($('<label for="messageSearch">No manifestations found!</label>'));
+				//listAllManifestationsSearch(manifestations, manifestations.id , ".panel1");
+			}
+        }
+    });
+}
+
+function searchByCriteriaWithoutName(type, startDate, endDate, priceMin, priceMax) {
+    $.get({
+        url: 'rest/manifestations/findOne/' + type + '/' + startDate + '/' + endDate + '/' + priceMin + '/' + priceMax,
+        success: function(manifestations) {
+			let answer = isIterable(manifestations);
+			if (answer) {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				for (let manifestation of manifestations) {
+					listAllManifestationsSearch(manifestation, manifestation.id , ".panel1");
+				}
+			} else {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				$(".panel1").append($('<label for="messageSearch">No manifestations found!</label>'));
+				//listAllManifestationsSearch(manifestations, manifestations.id , ".panel1");
+			}
+        }
+    });
+}
+
+function searchByCriteriaWithoutNameAndPrice(type, startDate, endDate) {
+    $.get({
+        url: 'rest/manifestations/findJustDate/' + type + '/' + startDate + '/' + endDate,
+        success: function(manifestations) {
+			let answer = isIterable(manifestations);
+			if (answer) {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				for (let manifestation of manifestations) {
+					listAllManifestationsSearch(manifestation, manifestation.id , ".panel1");
+				}
+			} else {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				$(".panel1").append($('<label for="messageSearch">No manifestations found!</label>'));
+				//listAllManifestationsSearch(manifestations, manifestations.id , ".panel1");
+			}
+        }
+    });
+}
+
+function searchByCriteriaJustPrice(type, priceMin, priceMax) {
+    $.get({
+        url: 'rest/manifestations/findJustPrice/' + type + '/' + priceMin + '/' + priceMax,
+        success: function(manifestations) {
+			let answer = isIterable(manifestations);
+			if (answer) {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				for (let manifestation of manifestations) {
+					listAllManifestationsSearch(manifestation, manifestation.id , ".panel1");
+				}
+			} else {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				$(".panel1").append($('<label for="messageSearch">No manifestations found!</label>'));
+				//listAllManifestationsSearch(manifestations, manifestations.id , ".panel1");
+			}
+        }
+    });
+}
+
+function searchByCriteriaJustType(type) {
+    $.get({
+        url: 'rest/manifestations/findType/' + type,
+        success: function(manifestations) {
+			let answer = isIterable(manifestations);
+			if (answer) {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				for (let manifestation of manifestations) {
+					listAllManifestationsSearch(manifestation, manifestation.id , ".panel1");
+				}
+			} else {
+				$(".panel1").empty();
+				$(".panel1").append($('<h1 class="panel__heading">All manifestations</h1><br/>'));
+				$(".panel1").append($('<label for="messageSearch">No manifestations found!</label>'));
+				//listAllManifestationsSearch(manifestations, manifestations.id , ".panel1");
+			}
+        }
+    });
+}
+
 // opening popup for entering number of tickets and ticket type you want to reserve
 function openForm(formName) {
 	document.getElementById(formName).style.display = "block";
@@ -973,10 +1201,7 @@ $(document).ready(function() {
 		}
 	});
 
-	
-
 	// _____________________LOGOUT REQUEST
-	// needs to be fixed!!!
 	$("button[name=logOut").click(function() {
 		$.post({
 			url: 'rest/users/logout',
@@ -987,6 +1212,82 @@ $(document).ready(function() {
 		});
 	});
 
+	//__________________________REQUEST TO SEARCH MANIFESTATIONS
+	$("#header-search-manifestations").submit(function() {
+		event.preventDefault();
+		let name = $("input[name=manifestation-name]").val();
+	    let type = $("select[name=manifestation-type]").val();
+		let startDate = $("input[name=manifestation-Startdate]").val();
+	    let endDate = $("input[name=manifestation-Enddate]").val();
+		let priceMin = $("input[name=manifestation-priceMin]").val();
+		let priceMax = $("input[name=manifestation-priceMax]").val();
+
+
+		if(name != "") {
+
+			if (startDate != "" && endDate != "") {
+				if (moment(endDate).isAfter(startDate)) {
+					if (priceMin != "" && priceMax != "") {
+						if (priceMin < priceMax) {
+							$('#successSearch').text('All data entered!');
+							$("#successSearch").show().delay(3000).fadeOut();
+							searchByCriteriaAll(name, type, startDate, endDate, priceMin, priceMax);
+						}  else {
+							$('#errorSearch').text("Min price bigger then max price!");
+							$("#errorSearch").show().delay(3000).fadeOut();
+						}
+					} else {
+						searchByCriteriaByNameAndDate(name, type, startDate, endDate);
+					}
+				}  else {
+					$('#errorSearch').text("End date is not after start date!");
+					$("#errorSearch").show().delay(3000).fadeOut();
+				}
+
+			} else {
+				if (priceMin != "" && priceMax != "") {
+					if (priceMin < priceMax) {
+						searchByCriteriaAllButDate(name, type, priceMin, priceMax);
+					}  else {
+						$('#errorSearch').text("Min price bigger then max price!");
+						$("#errorSearch").show().delay(3000).fadeOut();
+					}
+				} else {
+					searchByCriteriaJustName(name, type);
+				}
+			}
+
+		} else if (startDate != "" && endDate != "") {
+			if (moment(endDate).isAfter(startDate)) {
+
+				if (priceMin != "" && priceMax != "") {
+					if (priceMin < priceMax) {
+						searchByCriteriaWithoutName(type, startDate, endDate, priceMin, priceMax);
+					}  else {
+						$('#errorSearch').text("Min price bigger then max price!");
+						$("#errorSearch").show().delay(3000).fadeOut();
+					}
+				}
+				else {
+					searchByCriteriaWithoutNameAndPrice(type, startDate, endDate);
+				}
+
+			} else {
+				$('#errorSearch').text("End date is not after start date!");
+				$("#errorSearch").show().delay(3000).fadeOut();
+			}
+
+		} else if (priceMax != "" && priceMin != "") {
+			if (priceMin < priceMax) {
+				searchByCriteriaJustPrice(type, priceMin, priceMax);
+			}  else {
+				$('#errorSearch').text("Min price bigger then max price!");
+				$("#errorSearch").show().delay(3000).fadeOut();
+			}
+		} else {
+			searchByCriteriaJustType(type);
+		}
+	});
 	
 
 

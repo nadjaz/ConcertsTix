@@ -7,7 +7,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.NavigableMap;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -127,6 +129,96 @@ public class ManifestationDAO {
 		return false;
 	}
 
+	public Collection<Manifestation> searchDateManifestation(Collection<Manifestation> foundManifestations,
+			LocalDate startDate, LocalDate endDate) {
+		Collection<Manifestation> foundManifestationsDate = new ArrayList<>();
+
+		for (Manifestation manifestation : foundManifestations) {
+			if (manifestation.getDate().isAfter(startDate) && manifestation.getDate().isBefore(endDate)) {
+				foundManifestationsDate.add(manifestation);
+			}
+		}
+		return foundManifestationsDate;
+
+	}
+
+	public Collection<Manifestation> searchPriceManifestation(Collection<Manifestation> foundManifestations,
+			Double priceMin, Double priceMax) {
+		Collection<Manifestation> foundManifestationsPrice = new ArrayList<>();
+
+		// ukoliko su unesene i min i max price
+		// da li je cena veca od minimalne unesene i manja od maksimalne
+		if (!priceMin.equals(null) && !priceMax.equals(null)) {
+			for (Manifestation manifestation : foundManifestations) {
+				if (manifestation.getPriceRegular() > priceMin && manifestation.getPriceRegular() < priceMax) {
+					foundManifestationsPrice.add(manifestation);
+				}
+			}
+			return foundManifestationsPrice;
+		}
+
+		// da li je cena veca od minimalne unesene
+		else if (!priceMin.equals(null)) {
+			for (Manifestation manifestation : foundManifestations) {
+				if (manifestation.getPriceRegular() > priceMin) {
+					foundManifestationsPrice.add(manifestation);
+				}
+			}
+		}
+
+		// da li je cena manja od maksimalne unesene
+		else if (!priceMax.equals(null)) {
+			for (Manifestation manifestation : foundManifestations) {
+				if (manifestation.getPriceRegular() < priceMax) {
+					foundManifestationsPrice.add(manifestation);
+				}
+			}
+		}
+
+		return foundManifestationsPrice;
+	}
+
+	public Collection<Manifestation> searchNameManifestation(Collection<Manifestation> foundManifestations,
+			String nameMani) {
+		Collection<Manifestation> foundManifestationsName = new ArrayList<>();
+
+		// ukoliko je uneseno ime manifestacije
+		// izbacujemo sve manifestacije cije se ime ne poklapa
+		if (!nameMani.equals(null)) {
+			for (Manifestation manifestation : foundManifestations) {
+				if (manifestation.getName().equalsIgnoreCase(nameMani)) {
+					foundManifestationsName.add(manifestation);
+				}
+			}
+		}
+
+		return foundManifestationsName;
+	}
+
+	// search manifestations by criteria
+	public Collection<Manifestation> search(String nameMani, TypeManifestation typeMani, LocalDate startDate,
+			LocalDate endDate, Double priceMin, Double priceMax) {
+
+		Collection<Manifestation> foundManifestations = new ArrayList<>();
+
+		// tip manifestacija upada u datumski opseg (koji je required)
+		for (Manifestation manifestation : manifestations.values()) {
+			if (manifestation.getTypeManifestation().equals(typeMani)) {
+				if (manifestation.getDate().isAfter(startDate) && manifestation.getDate().isBefore(endDate)) {
+					foundManifestations.add(manifestation);
+				}
+			}
+		}
+
+		Collection<Manifestation> nameManifestations = searchNameManifestation(foundManifestations, nameMani);
+		Collection<Manifestation> finalManifestations = searchPriceManifestation(nameManifestations, priceMin,
+				priceMax);
+		if (finalManifestations.size() == 0) {
+			return null;
+		}
+		return finalManifestations;
+	}
+
 	// helper metoda za loadManifestations()
 	public Location createLocation(String locationString) {
 		StringTokenizer st = new StringTokenizer(locationString, ",");
@@ -193,5 +285,113 @@ public class ManifestationDAO {
 				}
 			}
 		}
+	}
+
+	public Collection<Manifestation> searchWithoutPrice(String nameMani, TypeManifestation typeMani,
+			LocalDate dateStart, LocalDate dateEnd) {
+		Collection<Manifestation> nameManifestations = searchName(nameMani, typeMani);
+
+		return searchDateManifestation(nameManifestations, dateStart, dateEnd);
+	}
+
+	public Collection<Manifestation> searchWithoutDate(String nameMani, TypeManifestation typeMani, Double priceMin,
+			Double priceMax) {
+		Collection<Manifestation> nameManifestations = searchName(nameMani, typeMani);
+
+		return searchPriceManifestation(nameManifestations, priceMin, priceMax);
+	}
+
+	public Collection<Manifestation> searchName(String nameMani, TypeManifestation typeMani) {
+		Collection<Manifestation> foundManifestationsName = new ArrayList<>();
+
+		// ukoliko je uneseno ime manifestacije
+		// izbacujemo sve manifestacije cije se ime ne poklapa
+		for (Manifestation manifestation : manifestations.values()) {
+			if (manifestation.getName().equalsIgnoreCase(nameMani)
+					&& manifestation.getTypeManifestation().equals(typeMani)) {
+				foundManifestationsName.add(manifestation);
+			}
+		}
+		return foundManifestationsName;
+	}
+
+	public Collection<Manifestation> searchWithoutName(TypeManifestation typeMani, LocalDate dateStart,
+			LocalDate dateEnd, Double priceMin, Double priceMax) {
+		Collection<Manifestation> foundManifestationsType = new ArrayList<>();
+
+		for (Manifestation manifestation : manifestations.values()) {
+			if (manifestation.getTypeManifestation().equals(typeMani)) {
+				foundManifestationsType.add(manifestation);
+			}
+		}
+		Collection<Manifestation> foundManifestationsPrice = searchPriceManifestation(foundManifestationsType, priceMin,
+				priceMax);
+		return searchDateManifestation(foundManifestationsPrice, dateStart, dateEnd);
+	}
+
+	public Collection<Manifestation> searchDate(TypeManifestation typeMani, LocalDate dateStart, LocalDate dateEnd) {
+		Collection<Manifestation> foundManifestationsType = new ArrayList<>();
+
+		for (Manifestation manifestation : manifestations.values()) {
+			if (manifestation.getTypeManifestation().equals(typeMani)) {
+				foundManifestationsType.add(manifestation);
+			}
+		}
+
+		return searchDateManifestation(foundManifestationsType, dateStart, dateEnd);
+	}
+
+	public Collection<Manifestation> searchPrice(TypeManifestation typeMani, Double priceMin, Double priceMax) {
+		Collection<Manifestation> foundManifestationsType = new ArrayList<>();
+
+		for (Manifestation manifestation : manifestations.values()) {
+			if (manifestation.getTypeManifestation().equals(typeMani)) {
+				foundManifestationsType.add(manifestation);
+			}
+		}
+
+		return searchPriceManifestation(foundManifestationsType, priceMin, priceMax);
+	}
+
+	public Collection<Manifestation> searchType(TypeManifestation typeMani) {
+		Collection<Manifestation> foundManifestationsType = new ArrayList<>();
+
+		for (Manifestation manifestation : manifestations.values()) {
+			if (manifestation.getTypeManifestation().equals(typeMani)) {
+				foundManifestationsType.add(manifestation);
+			}
+		}
+		return foundManifestationsType;
+	}
+
+	public Collection<Manifestation> sort(String sortValue) {
+		if (sortValue.equals("name")) {
+			SortedMap<String, Manifestation> sm = new TreeMap<String, Manifestation>();
+			for (Manifestation manifestation : manifestations.values()) {
+				sm.put(manifestation.getName(), manifestation);
+			}
+			return sm.values();
+		} else if (sortValue.equals("typeManifestation")) {
+			EnumMap<TypeManifestation, Manifestation> enumMap = new EnumMap<TypeManifestation, Manifestation>(TypeManifestation.class);
+			for (Manifestation manifestation : manifestations.values()) {
+				enumMap.put(manifestation.getTypeManifestation(), manifestation);
+			}
+			return enumMap.values();
+
+		} else if (sortValue.equals("date")) {
+			SortedMap<LocalDate, Manifestation> sm = new TreeMap<LocalDate, Manifestation>();
+			for (Manifestation manifestation : manifestations.values()) {
+				sm.put(manifestation.getDate(), manifestation);
+			}
+			return sm.values();
+
+		} else if (sortValue.equals("priceRegular")) {
+			SortedMap<Double, Manifestation> sm = new TreeMap<Double, Manifestation>();
+			for (Manifestation manifestation : manifestations.values()) {
+				sm.put(manifestation.getPriceRegular(), manifestation);
+			}
+			return sm.values();
+		}
+		return null;
 	}
 }
