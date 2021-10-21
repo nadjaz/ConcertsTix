@@ -1,7 +1,7 @@
 package services;
 
-import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -47,7 +47,11 @@ public class CommentService {
 		}
 	}
 
-	// vraca listu svih komentara
+	/**
+	 * Return a list of all comments
+	 * 
+	 * @return
+	 */
 	@GET
 	@Path("/list")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -56,8 +60,12 @@ public class CommentService {
 		return dao.findAll();
 	}
 
-	// vraca listu svih STANDBY komentara
-	// kako bi seller mogao da ih approve ili deny
+	/**
+	 * Returns a list of all comments with a standby status. (so that seller can
+	 * approve or deny them)
+	 * 
+	 * @return
+	 */
 	@GET
 	@Path("/listStandby")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -66,44 +74,71 @@ public class CommentService {
 		return dao.findAllStandby();
 	}
 
-	// vraca listu approved komentara za poslatu manifestaciju kako bi buyer mogao da ih vidi
+	/**
+	 * Returns a list of comments with an approved status for the manifestation id
+	 * sent. (so that buyer can see them)
+	 * 
+	 * @param manifestationId
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@GET
 	@Path("/find/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Collection<Comment> findApprovedCommentForManifestation(@PathParam("id") UUID manifestationId,
+	public Response findApprovedCommentForManifestation(@PathParam("id") UUID manifestationId,
 			@Context HttpServletRequest request, @Context HttpServletResponse response) {
 		CommentDAO dao = (CommentDAO) ctx.getAttribute("commentDAO");
 
 		ManifestationDAO manifestationDao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-		Manifestation manifestation = manifestationDao.find(manifestationId);
+		Optional<Manifestation> manifestation = manifestationDao.find(manifestationId);
 
-		Collection<Comment> allComments = dao.findByManifestation(manifestation);
-		Response.status(200).entity("Successfully created a new comment").build();
-		return allComments;
+		if (manifestation.isPresent()) {
+			Collection<Comment> allComments = dao.findApprovedByManifestation(manifestation.get());
+			return Response.status(200).entity(allComments).build();
+		}
+		return Response.status(404).entity("Manifestation not found!").build();
 	}
 
-	// pravi novi komentar za poslatu manfestaciju
+	/**
+	 * Creating a new comment for the sent manifestation
+	 * 
+	 * @param manifestationId
+	 * @param comment
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@POST
 	@Path("/create/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createComment(@PathParam("id") UUID manifestationId, Comment comment,
-			@Context HttpServletRequest request, @Context HttpServletResponse response) throws URISyntaxException {
+			@Context HttpServletRequest request, @Context HttpServletResponse response) {
 		CommentDAO dao = (CommentDAO) ctx.getAttribute("commentDAO");
 
 		ManifestationDAO manifestationDao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-		Manifestation manifestation = manifestationDao.find(manifestationId);
+		Optional<Manifestation> manifestation = manifestationDao.find(manifestationId);
 
+		if (manifestation.isEmpty()) {
+			return Response.status(404).entity("Manifestation not found!").build();
+		}
 		User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
 
-		Comment newComment = new Comment(loggedInUser, manifestation, comment.getComment(), comment.getRating(),
+		Comment newComment = new Comment(loggedInUser, manifestation.get(), comment.getComment(), comment.getRating(),
 				StatusComment.STANDBY);
 
 		dao.make(newComment);
 		return Response.status(200).entity("Successfully created a new comment").build();
+
 	}
 
-	// updejtuje status komentara u APPROVED
-	// seller ovo moze da uradi
+	/**
+	 * Approving a comment with the sent id. Changing the comment status to
+	 * approved. (only seller is authorized to do this)
+	 * 
+	 * @param commentId
+	 * @return
+	 */
 	@PUT
 	@Path("/approve/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -111,6 +146,24 @@ public class CommentService {
 		CommentDAO dao = (CommentDAO) ctx.getAttribute("commentDAO");
 		if (dao.approve(commentId)) {
 			return Response.status(200).entity("Successfully approved the comment").build();
+		}
+		return Response.status(404).entity("Comment not found!").build();
+	}
+
+	/**
+	 * Denying a comment with the sent id. Changing the comment status to denied.
+	 * (only seller is authorized to do this)
+	 * 
+	 * @param commentId
+	 * @return
+	 */
+	@PUT
+	@Path("/deny/{id}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response makeDenied(@PathParam("id") UUID commentId) {
+		CommentDAO dao = (CommentDAO) ctx.getAttribute("commentDAO");
+		if (dao.deny(commentId)) {
+			return Response.status(200).entity("Successfully denied the comment").build();
 		}
 		return Response.status(404).entity("Comment not found!").build();
 	}

@@ -7,13 +7,13 @@ public class Manifestation {
 
 	public enum TypeManifestation {
 		CONCERT, FESTIVAL, THEATRE;
-	};
+	}
 
 	public enum StatusManifestation {
 		ACTIVE, INACTIVE;
-	};
+	}
 
-	private UUID id;
+	private final UUID id = UUID.randomUUID();
 	private String name;
 	private TypeManifestation typeManifestation;
 	private Integer seatingNumber;
@@ -24,13 +24,12 @@ public class Manifestation {
 	private String image;
 
 	public Manifestation() {
-		super();
+
 	}
 
 	public Manifestation(String name, TypeManifestation typeManifestation, Integer seatingNumber, LocalDate date,
 			Double priceRegular, StatusManifestation status, Location location, String image) {
 		super();
-		this.id = UUID.randomUUID();
 		this.name = name;
 		this.typeManifestation = typeManifestation;
 		this.seatingNumber = seatingNumber;
@@ -110,10 +109,6 @@ public class Manifestation {
 
 	public UUID getId() {
 		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
 	}
 
 }

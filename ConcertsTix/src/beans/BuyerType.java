@@ -4,15 +4,11 @@ public class BuyerType {
 
 	public enum TypeBuyer {
 		GOLDEN, SILVER, BRONZE
-	};
+	}
 
 	private TypeBuyer type;
 	private int discount;
 	private int pointsLimit;
-
-	public BuyerType() {
-
-	}
 
 	public BuyerType(TypeBuyer type, int discount, int pointsLimit) {
 		super();

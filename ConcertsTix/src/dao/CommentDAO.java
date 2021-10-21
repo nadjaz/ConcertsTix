@@ -3,6 +3,7 @@ package dao;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NavigableMap;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -20,17 +21,17 @@ public class CommentDAO {
 	}
 
 	/**
-	 * Vraæa komentar za prosleðene parametre. Vraæa null ako komentar ne postoji
+	 * Returns a Comment for the sent id. Returns Optional empty if the comment with
+	 * the sent id isn't found.
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public Comment find(UUID id) {
+	public Optional<Comment> find(UUID id) {
 		if (!comments.containsKey(id)) {
-			return null;
+			return Optional.empty();
 		}
-		Comment comment = comments.get(id);
-		return comment;
+		return Optional.of(comments.get(id));
 	}
 
 	public Collection<Comment> findAll() {
@@ -41,7 +42,11 @@ public class CommentDAO {
 		return comments.lastKey();
 	}
 
-	// vraca listu svih standby komentara
+	/**
+	 * Returns a list of all comments with a standby status.
+	 * 
+	 * @return
+	 */
 	public Collection<Comment> findAllStandby() {
 		Collection<Comment> standbyComments = new ArrayList<>();
 		for (Comment comment : comments.values()) {
@@ -52,8 +57,12 @@ public class CommentDAO {
 		return standbyComments;
 	}
 
-	// vraca listu svih approved komentara
-	// kako bi kupac mogao da ih vidi na manifestacijama
+	/**
+	 * Returns a list of all comments with approved status. (so that buyer user can
+	 * see them on manifestations)
+	 * 
+	 * @return
+	 */
 	public Collection<Comment> findAllApproved() {
 		Collection<Comment> approvedComments = new ArrayList<>();
 		for (Comment comment : comments.values()) {
@@ -64,8 +73,14 @@ public class CommentDAO {
 		return approvedComments;
 	}
 
-	// vraca listu svih komentara (koji su approved) za poslatu manifestaciju
-	public Collection<Comment> findByManifestation(Manifestation manifestation) {
+	/**
+	 * Returns a list of all comments with approved status, for the sent
+	 * manifestation.
+	 * 
+	 * @param manifestation
+	 * @return
+	 */
+	public Collection<Comment> findApprovedByManifestation(Manifestation manifestation) {
 		Collection<Comment> foundComments = new ArrayList<>();
 		for (Comment comment : comments.values()) {
 			if (comment.getManifestation().equals(manifestation)
@@ -76,17 +91,43 @@ public class CommentDAO {
 		return foundComments;
 	}
 
-	// put the just made comment into comments map
+	/**
+	 * Create a comment and put it into the comments map.
+	 * 
+	 * @param comment
+	 */
 	public void make(Comment comment) {
 		UUID id = comment.getId();
 		comments.put(id, comment);
 	}
 
-	// menja status komentara u approve
+	/**
+	 * Changes the comment status to approved.
+	 * 
+	 * @param commentId
+	 * @return boolean - true if the comment is now approved, false if comment isn't
+	 *         found
+	 */
 	public boolean approve(UUID commentId) {
-		Comment comment = find(commentId);
-		if (comment != null) {
-			comment.setStatus(StatusComment.APPROVED);
+		Optional<Comment> comment = find(commentId);
+		if (comment.isPresent()) {
+			comment.get().setStatus(StatusComment.APPROVED);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Changes the comment status to denied.
+	 * 
+	 * @param commentId
+	 * @return boolean - true if the comment is now denied, false if comment isn't
+	 *         found
+	 */
+	public boolean deny(UUID commentId) {
+		Optional<Comment> comment = find(commentId);
+		if (comment.isPresent()) {
+			comment.get().setStatus(StatusComment.DENIED);
 			return true;
 		}
 		return false;

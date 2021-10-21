@@ -7,11 +7,11 @@ public class Ticket {
 
 	public enum TypeTicket {
 		REGULAR, FAN_PIT, VIP;
-	};
+	}
 
 	public enum StatusTicket {
 		RESERVED, CANCELED;
-	};
+	}
 
 	private UUID id;
 	private Manifestation manifestation;
@@ -26,21 +26,13 @@ public class Ticket {
 		super();
 	}
 
-	public Ticket(Manifestation manifestation, User buyerNameSurname, StatusTicket statusTicket,
-			TypeTicket typeTicket, Integer numberOfTickets) {
+	public Ticket(Manifestation manifestation, User buyerNameSurname, StatusTicket statusTicket, TypeTicket typeTicket,
+			Integer numberOfTickets) {
 		super();
 		this.id = UUID.randomUUID();
 		this.manifestation = manifestation;
 		this.date = manifestation.getDate();
-
-		if (typeTicket == TypeTicket.REGULAR) {
-			this.price = manifestation.getPriceRegular() * numberOfTickets;
-		} else if (typeTicket == TypeTicket.FAN_PIT) {
-			this.price = manifestation.getPriceRegular() * 2 * numberOfTickets;
-		} else {
-			this.price = manifestation.getPriceRegular() * 4 * numberOfTickets;
-		}
-
+		this.price = calculateFullPrice(numberOfTickets, typeTicket, manifestation.getPriceRegular());
 		this.buyerNameSurname = buyerNameSurname;
 		this.statusTicket = statusTicket;
 		this.typeTicket = typeTicket;
@@ -109,6 +101,26 @@ public class Ticket {
 
 	public void setNumberOfTickets(Integer numberOfTickets) {
 		this.numberOfTickets = numberOfTickets;
+	}
+
+	/**
+	 * Calculates ticket full price for a manifestation, for a given number of
+	 * tickets user wants to buy, based on the ticket type and the regular price for
+	 * the manifestation
+	 *
+	 * @param numberOfTickets - number of tickets user wants to buy
+	 * @param typeTicket      - ticket type which can be regular, fan pit or VIP
+	 * @param regularPrice    - regular price for a ticket, for a specific
+	 *                        manifestation
+	 */
+	public Double calculateFullPrice(Integer numberOfTickets, TypeTicket typeTicket, Double regularPrice) {
+		if (typeTicket == TypeTicket.REGULAR) {
+			return regularPrice * numberOfTickets;
+		} else if (typeTicket == TypeTicket.FAN_PIT) {
+			return regularPrice * 2 * numberOfTickets;
+		} else {
+			return regularPrice * 4 * numberOfTickets;
+		}
 	}
 
 }

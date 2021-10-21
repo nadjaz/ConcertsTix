@@ -12,80 +12,104 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import beans.BuyerUser;
 import beans.Manifestation;
+import beans.SellerUser;
 import beans.Ticket;
 import beans.User;
 import beans.User.Role;
 
 public class UserDAO {
 
-	// kolekcija svih registrovanih korisnika
+	// collection of all registered users
 	private Map<String, User> users = new HashMap<>();
+
+	private static Logger logger = Logger.getLogger(UserDAO.class.getName());
 
 	public UserDAO() {
 
 	}
 
 	/***
-	 * @param contextPath Putanja do aplikacije u Tomcatu. Može se pristupiti samo
-	 *                    iz servleta.
+	 * @param contextPath Path to application in Tomcat. Can be accessed only
+	 *                    through servlet.
 	 */
 	public UserDAO(String contextPath) {
-		loadUsers(contextPath);
+		loadAdministrators(contextPath);
 	}
 
 	/**
-	 * Vraæa korisnika za prosleðeno korisnièko ime i šifru. Vraæa null ako korisnik
-	 * ne postoji
+	 * Returns user for inputed username and password. Returns empty Optional if
+	 * user doesn't exist.
 	 * 
 	 * @param username
 	 * @param password
-	 * @return
+	 * @return Optional<User>
 	 */
-	public User find(String username, String password) {
+	public Optional<User> find(String username, String password) {
 		if (!users.containsKey(username)) {
-			return null;
+			return Optional.empty();
 		}
 		User user = users.get(username);
 		if (!user.getPassword().equals(password)) {
-			return null;
+			return Optional.empty();
 		}
-		return user;
+		return Optional.of(user);
 	}
 
+	/**
+	 * return all registered users
+	 * 
+	 * @return Collection<User>
+	 */
 	public Collection<User> findAll() {
 		return users.values();
 	}
 
-	public void addTicket(User user, Ticket ticket) {
+	public void addTicket(BuyerUser user, Ticket ticket) {
 		List<Ticket> tickets = user.getAllTickets();
 		tickets.add(ticket);
 	}
-	
-	public Collection<Ticket> findTickets(User user) {
+
+	public Collection<Ticket> findTickets(BuyerUser user) {
 		return user.getAllTickets();
 	}
 
-	public void addManifestation(User user, Manifestation manifestation) {
+	public void addManifestation(SellerUser user, Manifestation manifestation) {
 		List<Manifestation> manifestations = user.getAllManifestations();
 		manifestations.add(manifestation);
 	}
-	
-	public Collection<Manifestation> findManifestations(User user) {
+
+	public Collection<Manifestation> findManifestations(SellerUser user) {
 		return user.getAllManifestations();
 	}
 
-	public void register(User user) {
-		writeUserToFile(user);
+	/**
+	 * Registering a new user
+	 * 
+	 * @param user        - user we are registering
+	 * @param contextPath
+	 */
+	public void register(User user, String contextPath) {
+		writeUserToFile(user, contextPath);
 		users.put(user.getUsername(), user);
 	}
 
-	public User update(User changedUser) {
+	/**
+	 * Updating user with new information. Return empty if user doesn't exist.
+	 * 
+	 * @param changedUser - new user information
+	 * @return Optional<User> - return updated user
+	 */
+	public Optional<User> update(User changedUser, String contextPath) {
 		if (!users.containsKey(changedUser.getUsername())) {
-			return null;
+			return Optional.empty();
 		}
 		User user = users.get(changedUser.getUsername());
 		String lineToChange = user.getUsername() + ";" + user.getPassword() + ";" + user.getName() + ";"
@@ -98,105 +122,86 @@ public class UserDAO {
 		user.setDateOfBirth(changedUser.getDateOfBirth());
 
 		if (user.getRole() == Role.ADMINISTRATOR) {
-			String administratorsFilePath = "C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/administrators.txt";
-			updateUserInFile(lineToChange, user, administratorsFilePath);
+			String administratorsFilePath = "administrators.txt";
+			updateUserInFile(lineToChange, user, administratorsFilePath, contextPath);
 		} else {
-			String othersFilePath = "C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/buyersAndSellers.txt";
+			String othersFilePath = "buyersAndSellers.txt";
 			// updating user info in file
-			updateUserInFile(lineToChange, user, othersFilePath);
+			updateUserInFile(lineToChange, user, othersFilePath, contextPath);
 		}
-		return user;
+		return Optional.of(user);
 	}
 
-	private void updateUserInFile(String lineToChange, User updatedUser, String filePath) {
+	/**
+	 * Updating users in file
+	 * 
+	 * @param lineToChange - file line we are changing
+	 * @param updatedUser  - updated user information
+	 * @param filePath     - path of the file we are writing to (depends if we are
+	 *                     updating regular users or administrators)
+	 */
+	private void updateUserInFile(String lineToChange, User updatedUser, String filePath, String contextPath) {
+		StringBuilder buffer = new StringBuilder();
+		try (Scanner sc = new Scanner(new File(contextPath + "WEB-INF/resources/" + filePath))) {
 
-		// Instantiating the Scanner class to read the file
-		Scanner sc = null;
-		FileWriter writer = null;
-		try {
-			sc = new Scanner(new File(filePath));
-			// instantiating the StringBuffer class
-			StringBuffer buffer = new StringBuffer();
-			// Reading lines of the file and appending them to StringBuffer
+			// Reading lines of the file and appending them to StringBuilder
 			while (sc.hasNextLine()) {
 				buffer.append(sc.nextLine() + System.lineSeparator());
 			}
-			String fileContents = buffer.toString();
-			// System.out.println("Contents of the file: "+fileContents);
 
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try (FileWriter writer = new FileWriter(new File(contextPath + "WEB-INF/resources/" + filePath))) {
 			String newLine = updatedUser.getUsername() + ";" + updatedUser.getPassword() + ";" + updatedUser.getName()
 					+ ";" + updatedUser.getSurname() + ";" + updatedUser.getGender() + ";"
 					+ updatedUser.getDateOfBirth() + ";" + updatedUser.getRole();
+
+			String fileContents = buffer.toString();
 			// Replacing the old line with new line
 			fileContents = fileContents.replaceAll(lineToChange, newLine);
-			// instantiating the FileWriter class
-			writer = new FileWriter(filePath);
-			// System.out.println("");
-			// System.out.println("new data: " + fileContents);
-			writer.append(fileContents);
-			// writer.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (Exception e) {
-				}
-			}
-			// closing the Scanner object
-			if (sc != null) {
-				try {
-					sc.close();
-				} catch (Exception e) {
-				}
-			}
-		}
 
+			writer.append(fileContents);
+			writer.flush();
+		} catch (Exception ex) {
+			logger.log(Level.SEVERE, "Updating users in file failed", ex);
+		}
 	}
 
-	private void writeUserToFile(User user) {
+	/**
+	 * Adding a newly registered user into file
+	 * 
+	 * @param user - user that we are adding
+	 */
+	private void writeUserToFile(User user, String contextPath) {
 		String username = user.getUsername();
 		String password = user.getPassword();
-		String name = user.getUsername();
+		String name = user.getName();
 		String surname = user.getSurname();
 		String gender = user.getGender();
 		LocalDate dateOfBirth = user.getDateOfBirth();
 		Role role = user.getRole();
 
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(
-					"C:/Users/nadja/git/WEB_Projekat_2020-2021/ConcertsTix/WebContent/buyersAndSellers.txt", true));
+		// append new users to file
+		try (BufferedWriter writer = new BufferedWriter(
+				new FileWriter(new File(contextPath + "WEB-INF/resources/buyersAndSellers.txt"), true))) {
 			writer.write(username + ";" + password + ";" + name + ";" + surname + ";" + gender + ";" + dateOfBirth + ";"
 					+ role);
 			writer.newLine();
-			// out.flush();
-
+			writer.flush();
 		} catch (Exception ex) {
-			ex.printStackTrace();
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (Exception e) {
-				}
-			}
+			logger.log(Level.SEVERE, "Writing buyers and sellers to file failed", ex);
 		}
 	}
 
 	/**
-	 * Uèitava korisnike iz WebContent/administrators.txt fajla i dodaje ih u mapu
-	 * {@link #users}. Kljuè je korisnièko ime korisnika.
-	 * 
-	 * @param contextPath Putanja do aplikacije u Tomcatu
+	 * Loading administrators from administrators.txt file and adding them to all
+	 * users map {@link #users}. Map key is username.
 	 */
-	private void loadUsers(String contextPath) {
-		BufferedReader in = null;
-		try {
-			File file = new File(contextPath + "/administrators.txt");
-			in = new BufferedReader(new FileReader(file));
+	private void loadAdministrators(String contextPath) {
+		File file = new File(contextPath + "WEB-INF/resources/administrators.txt");
+		try (BufferedReader in = new BufferedReader(new FileReader(file))) {
 			String line;
 			StringTokenizer st;
 			while ((line = in.readLine()) != null) {
@@ -212,22 +217,13 @@ public class UserDAO {
 					String gender = st.nextToken().trim();
 					DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 					LocalDate dateOfBirth = LocalDate.parse(st.nextToken().trim(), pattern);
-					@SuppressWarnings("unused")
 					Role role = Role.valueOf(st.nextToken().trim());
-					// pravimo administatore
-					users.put(username, new User(username, password, name, surname, gender, dateOfBirth));
+					// adding administrators into all users map
+					users.put(username, new User(username, password, name, surname, gender, dateOfBirth, role));
 				}
-
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (Exception e) {
-				}
-			}
+			logger.log(Level.SEVERE, "Loading administrators failed", ex);
 		}
 	}
 

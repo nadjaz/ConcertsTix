@@ -1,9 +1,7 @@
 package services;
 
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +15,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -33,6 +32,8 @@ public class ManifestationService {
 	@Context
 	ServletContext ctx;
 
+	String contextPath;
+
 	public ManifestationService() {
 
 	}
@@ -43,13 +44,17 @@ public class ManifestationService {
 	public void init() {
 		// Ovaj objekat se instancira vise puta u toku rada aplikacije
 		// Inicijalizacija treba da se obavi samo jednom
+		contextPath = ctx.getRealPath("");
 		if (ctx.getAttribute("manifestationDAO") == null) {
-			String contextPath = ctx.getRealPath("");
 			ctx.setAttribute("manifestationDAO", new ManifestationDAO(contextPath));
 		}
 	}
 
-	// vraca listu svih manifestacija
+	/**
+	 * Returns a list of all manifestations
+	 * 
+	 * @return
+	 */
 	@GET
 	@Path("/list")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -58,9 +63,12 @@ public class ManifestationService {
 		return dao.findAll();
 	}
 
-	// vraca listu svih AKTIVNIH manifestacija
-	// kako bi sam kupac mogao da vidi samo manifestacije za kojih ima dovoljno
-	// karata
+	/**
+	 * Returns a list of all manifestations with active status (so that the buyer
+	 * can see only manifestations that he can buy tickets to)
+	 * 
+	 * @return
+	 */
 	@GET
 	@Path("/listActive")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -69,8 +77,12 @@ public class ManifestationService {
 		return dao.findAllActive();
 	}
 
-	// vraca listu svih NEAKTIVNIH manifestacija
-	// kako bi administrator mogao da od manifestacije napravi AKTIVNU
+	/**
+	 * Returns a list of all manifestations with inactive status (so that the
+	 * administrator can change their status to active)
+	 * 
+	 * @return
+	 */
 	@GET
 	@Path("/listInactive")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -79,6 +91,14 @@ public class ManifestationService {
 		return dao.findAllInactive();
 	}
 
+	/**
+	 * Creating a new manifestation.
+	 * 
+	 * @param manifestation
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@POST
 	@Path("/create")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -97,59 +117,84 @@ public class ManifestationService {
 				manifestation.getTypeManifestation(), manifestation.getSeatingNumber(), manifestation.getDate(),
 				manifestation.getPriceRegular(), StatusManifestation.INACTIVE, location, manifestation.getImage());
 
-		if (dao.saveManifestation(newManifestation) != null) {
+		if (dao.saveManifestation(newManifestation, contextPath).isPresent()) {
 			return Response.status(200).entity(newManifestation.getId()).build();
 		}
 		return Response.status(400).entity("Manifestation with the same id already created").build();
 	}
 
+	/**
+	 * Updating manifestation with the sent id
+	 * 
+	 * @param id
+	 * @param manifestation - manifestation with changed info
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@PUT
 	@Path("/update/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateManifestation(@PathParam("id") UUID id, Manifestation manifestation,
-			@Context HttpServletRequest request, @Context HttpServletResponse response) throws URISyntaxException {
+			@Context HttpServletRequest request, @Context HttpServletResponse response) {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-		Manifestation updatedManifestation = dao.update(id, manifestation);
-		if (updatedManifestation == null) {
+		Optional<Manifestation> updatedManifestation = dao.update(id, manifestation, contextPath);
+		if (updatedManifestation.isEmpty()) {
 			return Response.status(404).entity("Manifestation not found!").build();
 		}
 		return Response.status(200).entity("Successfully updated the manifestation").build();
 	}
 
-	// vraca manifestaciju za zadati id
+	/**
+	 * Return manifestation for the sent id
+	 * 
+	 * @param id
+	 * @return
+	 */
 	@GET
 	@Path("/findOne/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Manifestation reserveManifestation(@PathParam("id") UUID id) {
+	public Response reserveManifestation(@PathParam("id") UUID id) {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-		Manifestation manifestation = dao.find(id);
-		if (manifestation != null) {
-			Response.status(200).entity("Found the manifestation").build();
-			return manifestation;
+		Optional<Manifestation> manifestation = dao.find(id);
+		if (manifestation.isPresent()) {
+			return Response.status(200).entity(manifestation.get()).build();
+
 		}
-		Response.status(404).entity("Manifestation not found").build();
-		return null;
+		return Response.status(404).entity("Manifestation not found").build();
 	}
 
-	// updejtuje manifestaciju kako bi smanjio broj slobodnih mesta
-	// jer je manifestacija upravo rezervisana
+	/**
+	 * Decreasing the seating number for a manifestation that user reserved seats
+	 * (tickets) for. This happens after the manifestations ticket are reserved by
+	 * the user
+	 * 
+	 * @param id
+	 * @param num - number of tickets (seats) user reserved
+	 * @return
+	 */
 	@PUT
 	@Path("/reserveOne/{id}/{num}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response reserveManifestationSeatingNumber(@PathParam("id") UUID id, @PathParam("num") Integer num) {
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-		Manifestation manifestation = dao.find(id);
-		if (manifestation != null) {
+		Optional<Manifestation> manifestation = dao.find(id);
+		if (manifestation.isPresent()) {
 			// setovanje novog broja slobodnih mesta nakon rezervacije karte
 			// trenutni broj umanjen za broj kupljenih karata
-			manifestation.setSeatingNumber(manifestation.getSeatingNumber() - num);
+			manifestation.get().setSeatingNumber(manifestation.get().getSeatingNumber() - num);
 			return Response.status(200).entity("Found the manifestation").build();
 		}
 		return Response.status(404).entity("Manifestation not found").build();
 	}
 
-	// aktivira manifestaciju
+	/**
+	 * Change a manifestation status to active
+	 * 
+	 * @param id
+	 * @return
+	 */
 	@GET
 	@Path("/activateOne/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -161,198 +206,52 @@ public class ManifestationService {
 		return Response.status(400).entity("Failed to active the manifestation").build();
 	}
 
-	// search manifestacija za prosledjene parametre
+	/**
+	 * Search manifestations for the sent parameters.
+	 * 
+	 * @param nameMani
+	 * @param typeMani
+	 * @param startDate
+	 * @param endDate
+	 * @param priceMin
+	 * @param priceMax
+	 * @return
+	 */
 	@GET
-	@Path("/findOne/{name}/{type}/{startDate}/{endDate}/{priceMin}/{priceMax}")
+	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Manifestation> searchManifestations(@PathParam("name") String nameMani,
-			@PathParam("type") TypeManifestation typeMani, @PathParam("startDate") String startDate,
-			@PathParam("endDate") String endDate, @PathParam("priceMin") Double priceMin,
-			@PathParam("priceMax") Double priceMax) {
+	public Response searchManifestations(@QueryParam("name") String nameMani,
+			@QueryParam("type") TypeManifestation typeMani, @QueryParam("startDate") String startDate,
+			@QueryParam("endDate") String endDate, @QueryParam("priceMin") Double priceMin,
+			@QueryParam("priceMax") Double priceMax) {
 
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 
-		DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate dateStart = LocalDate.parse(startDate, pattern);
-		LocalDate dateEnd = LocalDate.parse(endDate, pattern);
-
-		Collection<Manifestation> foundManifestations = dao.search(nameMani, typeMani, dateStart, dateEnd, priceMin,
+		Collection<Manifestation> foundManifestations = dao.search(nameMani, typeMani, startDate, endDate, priceMin,
 				priceMax);
+		return Response.status(200).entity(foundManifestations).build();
 
-		if (foundManifestations != null) {
-			Response.status(200).entity("Found the manifestations that match the criteria").build();
-			return foundManifestations;
-		}
-		Response.status(404).entity("Manifestations not found").build();
-		return null;
 	}
 
-	// search manifestacija za prosledjene parametre
-	@GET
-	@Path("/findDate/{name}/{type}/{startDate}/{endDate}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Manifestation> searchManifestations(@PathParam("name") String nameMani,
-			@PathParam("type") TypeManifestation typeMani, @PathParam("startDate") String startDate,
-			@PathParam("endDate") String endDate) {
-
-		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-
-		DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate dateStart = LocalDate.parse(startDate, pattern);
-		LocalDate dateEnd = LocalDate.parse(endDate, pattern);
-
-		Collection<Manifestation> foundManifestations = dao.searchWithoutPrice(nameMani, typeMani, dateStart, dateEnd);
-
-		if (foundManifestations != null) {
-			Response.status(200).entity("Found the manifestations that match the criteria").build();
-			return foundManifestations;
-		}
-		Response.status(404).entity("Manifestations not found").build();
-		return null;
-	}
-
-	// search manifestacija za prosledjene parametre
-	@GET
-	@Path("/findPrice/{name}/{type}/{priceMin}/{priceMax}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Manifestation> searchManifestations(@PathParam("name") String nameMani,
-			@PathParam("type") TypeManifestation typeMani, @PathParam("priceMin") Double priceMin,
-			@PathParam("priceMax") Double priceMax) {
-
-		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-
-		Collection<Manifestation> foundManifestations = dao.searchWithoutDate(nameMani, typeMani, priceMin, priceMax);
-
-		if (foundManifestations != null) {
-			Response.status(200).entity("Found the manifestations that match the criteria").build();
-			return foundManifestations;
-		}
-		Response.status(404).entity("Manifestations not found").build();
-		return null;
-	}
-
-	// search manifestacija za prosledjene parametre
-	@GET
-	@Path("/findOne/{name}/{type}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Manifestation> searchManifestations(@PathParam("name") String nameMani,
-			@PathParam("type") TypeManifestation typeMani) {
-
-		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-
-		Collection<Manifestation> foundManifestations = dao.searchName(nameMani, typeMani);
-
-		if (foundManifestations != null) {
-			Response.status(200).entity("Found the manifestations that match the criteria").build();
-			return foundManifestations;
-		}
-		Response.status(404).entity("Manifestations not found").build();
-		return null;
-	}
-
-	// search manifestacija za prosledjene parametre
-	@GET
-	@Path("/findOne/{type}/{startDate}/{endDate}/{priceMin}/{priceMax}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Manifestation> searchManifestations(@PathParam("type") TypeManifestation typeMani,
-			@PathParam("startDate") String startDate, @PathParam("endDate") String endDate,
-			@PathParam("priceMin") Double priceMin, @PathParam("priceMax") Double priceMax) {
-
-		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-
-		DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate dateStart = LocalDate.parse(startDate, pattern);
-		LocalDate dateEnd = LocalDate.parse(endDate, pattern);
-
-		Collection<Manifestation> foundManifestations = dao.searchWithoutName(typeMani, dateStart, dateEnd, priceMin,
-				priceMax);
-
-		if (foundManifestations != null) {
-			Response.status(200).entity("Found the manifestations that match the criteria").build();
-			return foundManifestations;
-		}
-		Response.status(404).entity("Manifestations not found").build();
-		return null;
-	}
-
-	// search manifestacija za prosledjene parametre
-	@GET
-	@Path("/findJustDate/{type}/{startDate}/{endDate}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Manifestation> searchManifestations(@PathParam("type") TypeManifestation typeMani,
-			@PathParam("startDate") String startDate, @PathParam("endDate") String endDate) {
-
-		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-
-		DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate dateStart = LocalDate.parse(startDate, pattern);
-		LocalDate dateEnd = LocalDate.parse(endDate, pattern);
-
-		Collection<Manifestation> foundManifestations = dao.searchDate(typeMani, dateStart, dateEnd);
-
-		if (foundManifestations != null) {
-			Response.status(200).entity("Found the manifestations that match the criteria").build();
-			return foundManifestations;
-		}
-		Response.status(404).entity("Manifestations not found").build();
-		return null;
-	}
-
-	// search manifestacija za prosledjene parametre
-	@GET
-	@Path("/findJustPrice/{type}/{priceMin}/{priceMax}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Manifestation> searchManifestations(@PathParam("type") TypeManifestation typeMani,
-			@PathParam("priceMin") Double priceMin, @PathParam("priceMax") Double priceMax) {
-
-		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-
-		Collection<Manifestation> foundManifestations = dao.searchPrice(typeMani, priceMin, priceMax);
-
-		if (foundManifestations != null) {
-			Response.status(200).entity("Found the manifestations that match the criteria").build();
-			return foundManifestations;
-		}
-		Response.status(404).entity("Manifestations not found").build();
-		return null;
-	}
-
-	// search manifestacija za prosledjene parametre
-	@GET
-	@Path("/findType/{type}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Manifestation> searchManifestations(@PathParam("type") TypeManifestation typeMani) {
-
-		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-
-		Collection<Manifestation> foundManifestations = dao.searchType(typeMani);
-
-		if (foundManifestations != null) {
-			Response.status(200).entity("Found the manifestations that match the criteria").build();
-			return foundManifestations;
-		}
-		Response.status(404).entity("Manifestations not found").build();
-		return null;
-	}
-	
-	// sort manifestacija za prosledjene parametre
+	/**
+	 * Returns a list of sorted manifestations by the sort value
+	 * 
+	 * @param sortValue - value by which we want to sort manifestations
+	 * @return
+	 */
 	@GET
 	@Path("/sort/{value}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Manifestation> sortManifestations(@PathParam("value") String sortValue) {
+	public Response sortManifestations(@PathParam("value") String sortValue) {
 
 		ManifestationDAO dao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
 
 		Collection<Manifestation> foundManifestations = dao.sort(sortValue);
 
 		if (foundManifestations != null) {
-			Response.status(200).entity("Found the manifestations that match the criteria").build();
-			return foundManifestations;
+			return Response.status(200).entity(foundManifestations).build();
 		}
-		Response.status(404).entity("Manifestations not found").build();
-		return null;
+		return Response.status(404).entity("Manifestations not found").build();
 	}
-	
-	
 
 }

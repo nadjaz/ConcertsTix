@@ -10,7 +10,7 @@ public class Location {
 	private int postalCode;
 
 	public Location() {
-		super();
+
 	}
 
 	public Location(int length, int width, String street, int streetNumber, String city, int postalCode) {

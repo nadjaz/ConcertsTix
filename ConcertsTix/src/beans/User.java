@@ -1,13 +1,12 @@
 package beans;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class User {
 
 	public enum Role {
 		ADMINISTRATOR, SELLER, BUYER;
-	};
+	}
 
 	private String username;
 	private String password;
@@ -16,35 +15,14 @@ public class User {
 	private String gender;
 	private LocalDate dateOfBirth;
 	private Role role;
-	private List<Ticket> allTickets;
-	private List<Manifestation> allManifestations;
-	private Double points;
-	private BuyerType buyerType;
 
 	public User() {
-		super();
+
 	}
 
-	/** Constructor for CREATE ADMINISTRATOR USER
-	 * @param username
-	 * @param password
-	 * @param name
-	 * @param surname
-	 * @param gender
-	 * @param dateOfBirth
-	 */
-	public User(String username, String password, String name, String surname, String gender, LocalDate dateOfBirth) {
-		super();
-		this.username = username;
-		this.password = password;
-		this.name = name;
-		this.surname = surname;
-		this.gender = gender;
-		this.dateOfBirth = dateOfBirth;
-		this.role = Role.ADMINISTRATOR;
-	}
-
-	/** Constructor for CREATING SELLER OR BUYER USER
+	/**
+	 * Constructor for CREATING A USER
+	 * 
 	 * @param username
 	 * @param password
 	 * @param name
@@ -64,7 +42,7 @@ public class User {
 		this.dateOfBirth = dateOfBirth;
 		this.role = role;
 	}
-	
+
 	public String getUsername() {
 		return username;
 	}
@@ -111,38 +89,6 @@ public class User {
 
 	public void setDateOfBirth(LocalDate dateOfBirth) {
 		this.dateOfBirth = dateOfBirth;
-	}
-
-	public List<Ticket> getAllTickets() {
-		return allTickets;
-	}
-
-	public void setAllTickets(List<Ticket> allTickets) {
-		this.allTickets = allTickets;
-	}
-
-	public List<Manifestation> getAllManifestations() {
-		return allManifestations;
-	}
-
-	public void setAllManifestations(List<Manifestation> allManifestations) {
-		this.allManifestations = allManifestations;
-	}
-
-	public Double getPoints() {
-		return points;
-	}
-
-	public void setPoints(Double points) {
-		this.points = points;
-	}
-
-	public BuyerType getBuyerType() {
-		return buyerType;
-	}
-
-	public void setBuyerType(BuyerType buyerType) {
-		this.buyerType = buyerType;
 	}
 
 	public Role getRole() {

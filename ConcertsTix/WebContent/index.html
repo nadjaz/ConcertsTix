@@ -1,39 +1,40 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
 	<script src="jquery-3.3.1.min.js"></script>
 	<script src="index.js"></script>
-	
+
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 	<script>moment().format();</script>
-	
-	<link rel="stylesheet" href="style.css"/>
 
-	<link rel="icon" href="img/logo4.png"/>
-	<link rel="preconnect" href="https://fonts.gstatic.com"/>
-	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
-	
+	<link rel="stylesheet" href="style.css" />
+
+	<link rel="icon" href="img/logo4.png" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" />
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+
 	<title>ConcertsTix</title>
 </head>
+
 <body>
 	<div class="background-overlay">
 
 		<div class="logo-container">
 			<a href="http://localhost:8080/ConcertsTix/index.html">
-				<img src="img/logo4.png" alt="ConcertsTix"/>
+				<img src="img/logo4.png" alt="ConcertsTix" />
 			</a>
 		</div>
 
 		<div class="container">
 			<div class="search-container">
 				<form action="#" id="header-search-manifestations">
-					<h1 class="panel__heading">SEARCH MANIFESTATIONS</h1><br/>
+					<h1 class="panel__heading">SEARCH MANIFESTATIONS</h1><br />
 					<div class="manifestation-name" id="input-manifestation-name">
 						<label>Name:</label>
-						<input type="text" name="manifestation-name" id="manifestation-name"/>
-						
+						<input type="text" name="manifestation-name" id="manifestation-name" />
 					</div>
 
 					<div class="manifestation-type" id="select-manifestation-type">
@@ -47,36 +48,39 @@
 
 					<div class="manifestation-Startdate" id="input-manifestation-Startdate">
 						<label>Date:</label>
-						<input type="date" name="manifestation-Startdate" id="manifestation-Startdate"/>
+						<input type="date" name="manifestation-Startdate" id="manifestation-Startdate" />
 					</div>
 
 					<div class="manifestation-Enddate" id="input-manifestation-Enddate">
 						<label>Date:</label>
-						<input type="date" name="manifestation-Enddate" id="manifestation-Enddate"/>
+						<input type="date" name="manifestation-Enddate" id="manifestation-Enddate" />
 					</div>
 
 					<div class="manifestation-price" id="input-manifestation-priceMin">
 						<label>Minimum price:</label>
-						<input type="number" name="manifestation-priceMin" id="manifestation-priceMin" min="0" max="20000"/>
+						<input type="number" name="manifestation-priceMin" id="manifestation-priceMin" min="0"
+							max="20000" />
 					</div>
 
 					<div class="manifestation-price" id="input-manifestation-priceMax">
 						<label>Maximum price:</label>
-						<input type="number" name="manifestation-priceMax" id="manifestation-priceMax" min="0" max="20000"/>
+						<input type="number" name="manifestation-priceMax" id="manifestation-priceMax" min="0"
+							max="20000" />
 					</div>
 
 					<div class="input">
 						<label id="errorSearch" hidden="true"></label>
 					</div>
-		
+
 					<div class="input">
 						<label id="successSearch" hidden="true"></label>
 					</div>
-			
+
 					<button type="submit">SEARCH</button>
 
 				</form>
 			</div>
+
 			<div class="sort-container">
 				<label>Sort by:</label>
 				<select name="sort-by">
@@ -88,61 +92,59 @@
 				<button type="submit" name="sortButton">Sort</button>
 			</div>
 		</div>
-		
-		
-		<div id="container">
 
+		<div id="container">
 			<div class="panel-container1Index">
 				<div class="panel1">
-					<h1 class="panel__heading">ALL MANIFESTATIONS</h1><br/>
-					
+					<h1 class="panel__heading">ALL MANIFESTATIONS</h1><br />
+
 				</div>
 			</div>
 
 			<div class="panel-container2">
 				<div class="panel2">
-					<h1 class="panel__heading">LOGIN</h1><br/>
+					<h1 class="panel__heading">LOGIN</h1><br />
 
 					<form action=# method="post" name="loginForm">
 						<div class="input">
 							<label for="loginUsername">Username:</label>
-							<input type="text" name="loginUsername" id="loginUsername"/>
+							<input type="text" name="loginUsername" id="loginUsername" />
 						</div>
 						<div class="input">
 							<label for="loginPassword">Password:</label>
-							<input type="password" name="loginPassword" id="loginPassword"/>
+							<input type="password" name="loginPassword" id="loginPassword" />
 						</div>
 						<button type="submit">Log In</button>
 
 						<div class="input">
 							<label id="errorLogin" hidden="true"></label>
 						</div>
-			
+
 						<div class="input">
 							<label id="successLogin" hidden="true"></label>
 						</div>
 					</form>
-				</div><br/><br/>
-			
+				</div><br /><br />
+
 				<div class="panel3">
-					<h1 class="panel__heading">REGISTER</h1><br/>
-					
+					<h1 class="panel__heading">REGISTER</h1><br />
+
 					<form action="#" method="post" name="registerForm">
 						<div class="input">
 							<label for="username">Username:</label>
-							<input type="text" name="username" id="username"/>
+							<input type="text" name="username" id="username" />
 						</div>
 						<div class="input">
 							<label for="password">Password:</label>
-							<input type="password" name="password" id="password"/>
+							<input type="password" name="password" id="password" />
 						</div>
 						<div class="input">
 							<label for="firstName">First name:</label>
-							<input type="text" name="firstName" id="firstName"/>
+							<input type="text" name="firstName" id="firstName" />
 						</div>
 						<div class="input">
 							<label for="lastName">Last name:</label>
-							<input type="text" name="lastName" id="lastName"/>
+							<input type="text" name="lastName" id="lastName" />
 						</div>
 						<div class="dropdown">
 							<label for="gender">Gender:</label>
@@ -150,29 +152,27 @@
 								<option value="female">Female</option>
 								<option value="male">Male</option>
 							</select>
-						</div><br/>
+						</div><br />
 						<div class="input">
 							<label for="dateOfBirth">Date of Birth:</label>
-							<input type="date" name="dateOfBirth" id="dateOfBirth" value="2021-09-11"/>
+							<input type="date" name="dateOfBirth" id="dateOfBirth" value="2021-09-11" />
 						</div>
-						
+
 						<button type="submit">Register</button>
 
 						<div class="input">
 							<label id="errorRegister" hidden="true"></label>
 						</div>
-			
+
 						<div class="input">
 							<label id="successRegister" hidden="true"></label>
 						</div>
 					</form>
 
-				</div>	
+				</div>
 			</div>
-
-			
-
 		</div>
-	</div>					
+	</div>
 </body>
+
 </html>

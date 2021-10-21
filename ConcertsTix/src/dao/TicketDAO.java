@@ -8,9 +8,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NavigableMap;
+import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import beans.Location;
 import beans.Manifestation;
@@ -24,8 +27,10 @@ import beans.User.Role;
 
 public class TicketDAO {
 
-	// kolekcija svih registrovanih inicijalnih karata
+	// collection of all tickets in the system
 	private NavigableMap<UUID, Ticket> tickets = new TreeMap<>();
+
+	private static Logger logger = Logger.getLogger(TicketDAO.class.getName());
 
 	public TicketDAO() {
 
@@ -38,34 +43,42 @@ public class TicketDAO {
 	public Collection<Ticket> findAll() {
 		return tickets.values();
 	}
-	
+
 	/**
-	 * Vraæa ticket za prosleðene parametre. Vraæa null ako ticket ne
-	 * postoji
+	 * Return Ticket for the sent id. Returns Optional empty if a ticket with the
+	 * sent id doesn't exists.
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public Ticket find(UUID id) {
+	public Optional<Ticket> find(UUID id) {
 		if (!tickets.containsKey(id)) {
-			return null;
+			return Optional.empty();
 		}
-		Ticket ticket = tickets.get(id);
-		return ticket;
+		return Optional.of(tickets.get(id));
 	}
-	
-	// find all reserved tickets
+
+	/**
+	 * find all reserved tickets
+	 * 
+	 * @return
+	 */
 	public Collection<Ticket> findAllReserved() {
-		Collection<Ticket> reservedTickets = new ArrayList<Ticket>();
+		Collection<Ticket> reservedTickets = new ArrayList<>();
 		for (Ticket ticket : tickets.values()) {
-			if (ticket.getStatusTicket().equals(StatusTicket.RESERVED))  {
+			if (ticket.getStatusTicket().equals(StatusTicket.RESERVED)) {
 				reservedTickets.add(ticket);
 			}
 		}
 		return reservedTickets;
 	}
 
-	// returns all reserved tickets for the sent user
+	/**
+	 * returns all reserved tickets for the sent user
+	 * 
+	 * @param user
+	 * @return
+	 */
 	public Collection<Ticket> findForUser(User user) {
 		Collection<Ticket> myTickets = new ArrayList<>();
 		for (Ticket ticket : tickets.values()) {
@@ -75,23 +88,29 @@ public class TicketDAO {
 		}
 		return myTickets;
 	}
-	
-	// vracamo manifestacije za koje je korisnik rezervisao karte
-	// a koje su se vec odrzale
-	// da bi kupac mogao da ostavi komentar
-	public Collection<Manifestation> findManifestationsForUser(User user, NavigableMap<UUID, Manifestation> manifestations) {
-		
+
+	/**
+	 * Return all manifestation that user reserved in the past, so that the user can
+	 * comment on them.
+	 * 
+	 * @param user
+	 * @param manifestations - all manifestations
+	 * @return
+	 */
+	public Collection<Manifestation> findManifestationsForUser(User user,
+			NavigableMap<UUID, Manifestation> manifestations) {
+
 		Collection<Ticket> usersTickets = findForUser(user);
-		Collection<Manifestation> usersManifestations = new ArrayList<Manifestation>();
-		Collection<Manifestation> filteredManifestations = new ArrayList<Manifestation>();
-		
+		Collection<Manifestation> usersManifestations = new ArrayList<>();
+		Collection<Manifestation> filteredManifestations = new ArrayList<>();
+
 		LocalDate todaysDate = LocalDate.now();
-		
+
 		for (Ticket ticket : usersTickets) {
 			usersManifestations.add(ticket.getManifestation());
 		}
 		for (Manifestation manifestation : usersManifestations) {
-			if(todaysDate.isAfter(manifestation.getDate())) {
+			if (todaysDate.isAfter(manifestation.getDate())) {
 				filteredManifestations.add(manifestations.get(manifestation.getId()));
 			}
 		}
@@ -101,35 +120,56 @@ public class TicketDAO {
 	public UUID findLastId() {
 		return tickets.lastKey();
 	}
-	
-	public Ticket findLastTicket() {
-		UUID lastId = findLastId();
-		Ticket foundTicket = tickets.get(lastId);
-		if (foundTicket != null) {
-			return foundTicket;
-		}
-		return null;
-	}
 
-	public Ticket saveTicket(Ticket ticket) {
+	/**
+	 * Creating a new ticket. Returns Optional empty if a ticket with the same id
+	 * already exists.
+	 * 
+	 * @param ticket
+	 * @return
+	 */
+	public Optional<Ticket> saveTicket(Ticket ticket) {
 		if (!tickets.containsKey(ticket.getId())) {
 			tickets.put(ticket.getId(), ticket);
-			return ticket;
+			return Optional.of(ticket);
 		}
-		return null;
-	}
-	
-	// cancel ticket, change ticket status
-	public Ticket cancelTicket(UUID id) {
-		Ticket ticket = find(id);
-		if (!ticket.equals(null)) {
-			ticket.setStatusTicket(StatusTicket.CANCELED);
-			return ticket;
-		}
-		return null;
-		
+		return Optional.empty();
 	}
 
+	/**
+	 * Cancel ticket, so that it's not valid anymore (set ticket status to
+	 * cancelled). Returns Optional empty if ticket with the sent id isn't found.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Optional<Ticket> cancelTicket(UUID id) {
+		Optional<Ticket> ticket = find(id);
+		if (ticket.isPresent()) {
+			ticket.get().setStatusTicket(StatusTicket.CANCELED);
+			return ticket;
+		}
+		return Optional.empty();
+
+	}
+
+	/**
+	 * Calculates the points lost because of the ticket cancelation
+	 * 
+	 * @param regularPrice - regular price for a ticket for that manifestation
+	 * @param userPoints   - current users points
+	 * @return
+	 */
+	public Double calculateLostPoints(Double regularPrice, Double userPoints) {
+		return userPoints - (regularPrice / 1000 * 133 * 4);
+	}
+
+	/**
+	 * create Location object from file
+	 * 
+	 * @param locationString - string to be divided into Location information
+	 * @return
+	 */
 	public Location createLocation(String locationString) {
 		StringTokenizer st = new StringTokenizer(locationString, ":");
 		// 45:35:Pennsylvania Plaza:4:New York:10001
@@ -147,6 +187,13 @@ public class TicketDAO {
 		return location;
 	}
 
+	/**
+	 * create Manifestation object from file
+	 * 
+	 * @param manifestationString - string to be divided into Manifestation
+	 *                            information
+	 * @return
+	 */
 	public Manifestation createManifestation(String manifestationString) {
 		StringTokenizer st = new StringTokenizer(manifestationString, ",");
 		// Game Of Thrones,THEATRE,90,2021-10-17,250,ACTIVE,45:35:Pennsylvania
@@ -172,6 +219,12 @@ public class TicketDAO {
 		return manifestation;
 	}
 
+	/**
+	 * creating User object from file
+	 * 
+	 * @param userString - string to be divided into User information
+	 * @return
+	 */
 	public User createUser(String userString) {
 		StringTokenizer st = new StringTokenizer(userString, ",");
 		// nadjaz,nadja,Nadja,Zorboski,female,1995-08-17,ADMINISTRATOR
@@ -191,11 +244,16 @@ public class TicketDAO {
 		return user;
 	}
 
+	/**
+	 * Loading Tickets from tickets.txt file and adding them to all tickets map
+	 * {@link #tickets}. Ticket key is ticketId.
+	 * 
+	 * @param contextPath
+	 */
 	private void loadTickets(String contextPath) {
-		BufferedReader in = null;
-		try {
-			File file = new File(contextPath + "/tickets.txt");
-			in = new BufferedReader(new FileReader(file));
+		File file = new File(contextPath + "/WEB-INF/resources/tickets.txt");
+		try (BufferedReader in = new BufferedReader(new FileReader(file))) {
+
 			String line;
 			StringTokenizer st;
 			while ((line = in.readLine()) != null) {
@@ -219,16 +277,8 @@ public class TicketDAO {
 
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (Exception e) {
-				}
-			}
+			logger.log(Level.SEVERE, "Loading tickets failed", ex);
 		}
-
 	}
 
 }

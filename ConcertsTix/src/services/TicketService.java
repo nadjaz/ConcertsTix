@@ -1,6 +1,7 @@
 package services;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -18,6 +19,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import beans.BuyerUser;
 import beans.Manifestation;
 import beans.Ticket;
 import beans.Ticket.StatusTicket;
@@ -48,7 +50,11 @@ public class TicketService {
 		}
 	}
 
-	// vraca listu svih karata
+	/**
+	 * Returns a list of all tickets with all statuses.
+	 * 
+	 * @return
+	 */
 	@GET
 	@Path("/list")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -56,8 +62,12 @@ public class TicketService {
 		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
 		return dao.findAll();
 	}
-	
-	// vraca listu svih karata
+
+	/**
+	 * Returns a list of all reserved tickets
+	 * 
+	 * @return
+	 */
 	@GET
 	@Path("/listReserved")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -65,9 +75,15 @@ public class TicketService {
 		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
 		return dao.findAllReserved();
 	}
-	
-	// vraca listu svih karata za poslati username
-	// samo onih koji su statusa reserved, ne canceled
+
+	/**
+	 * Returns a list of all reserved tickets for a specific user
+	 * 
+	 * @param username
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@GET
 	@Path("/list/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -78,85 +94,123 @@ public class TicketService {
 		User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
 		return dao.findForUser(loggedInUser);
 	}
-	
-	// vraca listu svih zavrsenih manifestacija za koje je korisnik kupio karte
+
+	/**
+	 * Returns a list of all finished manifestations that the user has bought
+	 * tickets for
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@GET
 	@Path("/myFinishedManifestations")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Collection<Manifestation> getFinishedManifestations(@Context HttpServletRequest request,
 			@Context HttpServletResponse response) {
 		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
-		ManifestationDAO manifestationDao =  (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-		
+		ManifestationDAO manifestationDao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
+
 		User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
-		Collection<Manifestation> usersManifestations = dao.findManifestationsForUser(loggedInUser, manifestationDao.returnManifestationMap());
-		return usersManifestations;
+		return dao.findManifestationsForUser(loggedInUser, manifestationDao.returnManifestationMap());
 	}
-	
-	// rezervacija karte za odredjenu manifestaciju
-	// num - broj karata koje se rezervisu
-	// type - tip karata koje se rezervisu
+
+	/**
+	 * Reserving specific number of tickets for a manifestation
+	 * 
+	 * @param type                      - ticket type user wants to reserve
+	 * @param num                       - number of tickets user wants to reserve
+	 * @param manifestationToBeReserved
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@POST
 	@Path("/reserve/{type}/{num}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response reserve(@PathParam("type") TypeTicket type, @PathParam("num") Integer num, Manifestation manifestationToBeReserved, @Context HttpServletRequest request,
+	public Response reserve(@PathParam("type") TypeTicket type, @PathParam("num") Integer num,
+			UUID uuidManifestationToBeReserved, @Context HttpServletRequest request,
 			@Context HttpServletResponse response) {
 		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
-		
-		User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
-		loggedInUser.setPoints(loggedInUser.getPoints() + (manifestationToBeReserved.getPriceRegular()/1000 * 133));
-		
-		Ticket newTicket = new Ticket(manifestationToBeReserved, loggedInUser, StatusTicket.RESERVED, type, num);
-		
-		if (dao.saveTicket(newTicket) != null) {
+		ManifestationDAO manifestationDao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
+
+		BuyerUser loggedInUser = (BuyerUser) request.getSession().getAttribute("loggedInUser");
+
+		Optional<Manifestation> manifestationToReserve = manifestationDao.find(uuidManifestationToBeReserved);
+		if (manifestationToReserve.isEmpty()) {
+			return Response.status(400).entity("Manifestation not found!").build();
+		}
+
+		loggedInUser.setPoints(
+				dao.calculateLostPoints(manifestationToReserve.get().getPriceRegular(), loggedInUser.getPoints()));
+		Ticket newTicket = new Ticket(manifestationToReserve.get(), loggedInUser, StatusTicket.RESERVED, type, num);
+		Optional<Ticket> ticketToSave = dao.saveTicket(newTicket);
+
+		if (ticketToSave.isPresent()) {
 			return Response.status(200).entity(newTicket.getId()).build();
 		}
 		return Response.status(400).entity("Ticket with the same id already created").build();
 	}
-	
-	// menja status ticketa koji je napravio user
-	// status prelazi u CANCELED
+
+	/**
+	 * Cancels the ticket with a sent id.
+	 * 
+	 * @param id
+	 * @param request
+	 * @return
+	 */
 	@PUT
 	@Path("/cancel/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response cancelTicket(@PathParam("id") UUID id, @Context HttpServletRequest request) {
 		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
-		
-		Ticket ticket = dao.cancelTicket(id);
-		if (ticket != null) {
+
+		Optional<Ticket> ticket = dao.cancelTicket(id);
+		if (ticket.isPresent()) {
 			// setovanje novog broja slobodnih mesta nakon odustanka od karte
 			// trenutni broj povecan za broj kupljenih karata
-			
+
 			ManifestationDAO manifestationDao = (ManifestationDAO) ctx.getAttribute("manifestationDAO");
-			Manifestation foundManifestation = manifestationDao.find(ticket.getManifestation().getId());
-			
-			Integer currentSeatingNumber = foundManifestation.getSeatingNumber();
-			
-			ticket.getNumberOfTickets();
-			foundManifestation.setSeatingNumber(currentSeatingNumber + ticket.getNumberOfTickets());
-			
+			Optional<Manifestation> foundManifestation = manifestationDao.find(ticket.get().getManifestation().getId());
+
+			if (foundManifestation.isEmpty()) {
+				return Response.status(404).entity("Manifestation not found!").build();
+			}
+
+			Integer currentSeatingNumber = foundManifestation.get().getSeatingNumber();
+
+			ticket.get().getNumberOfTickets();
+			foundManifestation.get().setSeatingNumber(currentSeatingNumber + ticket.get().getNumberOfTickets());
+
 			// racunanje broja izgubljenih bodova zbog odustanka od rezervacije
-			User loggedInUser = (User) request.getSession().getAttribute("loggedInUser");
-			loggedInUser.setPoints(loggedInUser.getPoints() - (foundManifestation.getPriceRegular()/1000 * 133 * 4));
-			
+			BuyerUser loggedInUser = (BuyerUser) request.getSession().getAttribute("loggedInUser");
+			Double newPoints = dao.calculateLostPoints(foundManifestation.get().getPriceRegular(),
+					loggedInUser.getPoints());
+			loggedInUser.setPoints(newPoints);
 			return Response.status(200).entity("Found the ticket").build();
 		}
 		return Response.status(404).entity("Ticket not found").build();
 	}
-	
-	// vraca ticket za poslati id
+
+	/**
+	 * Returns the last created ticket.
+	 * 
+	 * @param ticketId
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@GET
 	@Path("/findOne/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Ticket lastTicketCreated(@PathParam("id") UUID ticketId, @Context HttpServletRequest request, @Context HttpServletResponse response) {
+	public Response lastTicketCreated(@PathParam("id") UUID ticketId, @Context HttpServletRequest request,
+			@Context HttpServletResponse response) {
 		TicketDAO dao = (TicketDAO) ctx.getAttribute("ticketDAO");
-		Ticket ticket = dao.find(ticketId);
-		if (ticket != null) {
-			Response.status(200).entity("Found the ticket").build();
-			return ticket;
+		Optional<Ticket> ticket = dao.find(ticketId);
+		if (ticket.isPresent()) {
+			return Response.status(200).entity(ticket.get()).build();
 		}
-		Response.status(404).entity("Ticket not found").build();
-		return null;
+		return Response.status(404).entity("Ticket not found").build();
 	}
 
 }
